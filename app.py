@@ -90,6 +90,7 @@ def get_db_connection():
             user=os.getenv('DB_USER', 'root'),
             password=os.getenv('DB_PASSWORD', '12345'),
             database=os.getenv('DB_NAME', 'lms_system'),
+            port=int(os.getenv('DB_PORT', 3306)),  # Convert port to integer
             autocommit=False,
             pool_name="mypool",
             pool_size=int(os.getenv('DB_POOL_SIZE', 32)),
@@ -3514,6 +3515,6 @@ def export_all_students_excel():
 
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True)
+    socketio.run(app, host='0.0.0.0', port=5000, debug=True)
 
 
