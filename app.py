@@ -95,7 +95,7 @@ def get_db_connection():
             user = parsed.username or 'root'
             password = parsed.password or '12345'
             database = parsed.path.lstrip('/') or 'lms_system'
-            port = parsed.port or 3306
+            port = int(parsed.port or 3306)  # Force integer conversion
         else:
             # Fall back to individual environment variables
             host = os.getenv('DB_HOST', 'localhost')
@@ -104,12 +104,15 @@ def get_db_connection():
             database = os.getenv('DB_NAME', 'lms_system')
             port = int(os.getenv('DB_PORT') or 3306)
         
+        # Debug output
+        print(f"[DEBUG] Connecting to MySQL: host={host}, user={user}, database={database}, port={port} (type: {type(port).__name__})")
+        
         conn = mysql.connector.connect(
             host=host,
             user=user,
             password=password,
             database=database,
-            port=port,
+            port=int(port),  # Ensure integer type at connection
             autocommit=False,
             pool_name="mypool",
             pool_size=int(os.getenv('DB_POOL_SIZE', 32)),
