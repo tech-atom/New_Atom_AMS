@@ -85,12 +85,31 @@ def add_header(response):
 # Database Connection with auto-reconnect and secure configuration
 def get_db_connection():
     try:
+        # Try DATABASE_URL first (Railway standard), then fall back to individual vars
+        database_url = os.getenv('DATABASE_URL')
+        if database_url:
+            # Parse DATABASE_URL: mysql://user:password@host:port/database
+            from urllib.parse import urlparse
+            parsed = urlparse(database_url)
+            host = parsed.hostname or 'localhost'
+            user = parsed.username or 'root'
+            password = parsed.password or '12345'
+            database = parsed.path.lstrip('/') or 'lms_system'
+            port = parsed.port or 3306
+        else:
+            # Fall back to individual environment variables
+            host = os.getenv('DB_HOST', 'localhost')
+            user = os.getenv('DB_USER', 'root')
+            password = os.getenv('DB_PASSWORD', '12345')
+            database = os.getenv('DB_NAME', 'lms_system')
+            port = int(os.getenv('DB_PORT') or 3306)
+        
         conn = mysql.connector.connect(
-            host=os.getenv('DB_HOST', 'localhost'),
-            user=os.getenv('DB_USER', 'root'),
-            password=os.getenv('DB_PASSWORD', '12345'),
-            database=os.getenv('DB_NAME', 'lms_system'),
-            port=int(os.getenv('DB_PORT') or 3306),  # Convert port to integer, handle empty string
+            host=host,
+            user=user,
+            password=password,
+            database=database,
+            port=port,
             autocommit=False,
             pool_name="mypool",
             pool_size=int(os.getenv('DB_POOL_SIZE', 32)),
