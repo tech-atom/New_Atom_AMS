@@ -1,0 +1,27 @@
+# Security Dependencies for ATOM SHAALE AMS
+# Install with: pip install -r requirements-security.txt
+
+# Core Flask dependencies (already installed)
+Flask==3.1.2
+Flask-SocketIO==5.6.0
+mysql-connector-python==8.0.33
+werkzeug==3.1.4
+
+# NEW Security Packages
+flask-talisman==1.1.0          # HTTPS enforcement, security headers, CSP
+flask-limiter==3.8.0           # Rate limiting
+flask-seasurf==1.1.1           # CSRF protection
+bleach==6.1.0                  # HTML sanitization (XSS prevention)
+python-dotenv==1.0.0           # Environment variables for secrets
+redis==5.0.1                   # For Flask-Limiter storage (production)
+
+# Additional security
+argon2-cffi==23.1.0            # Password hashing (stronger than Werkzeug)
+cryptography==42.0.2           # Encryption utilities
+pyjwt==2.8.0                   # JWT tokens (optional)
+
+# Monitoring and logging
+python-json-logger==2.0.7      # Structured logging
+
+# Optional: IP blocking
+flask-ipban==1.1.5             # IP-based banning

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Announcements - {{ student_name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='futuristic-theme.css') }}">
+    <style>
+        .back-button a {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #00ff9d 0%, #00d4ff 100%);
+            color: #000;
+            padding: 12px 24px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(0, 255, 157, 0.4);
+            border: 2px solid #008037;
+            animation: borderGlow 3s ease-in-out infinite;
+        }
+        
+        .back-button a:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 30px rgba(0, 255, 157, 0.6);
+        }
+        
+        @keyframes borderGlow {
+            0%, 100% {
+                box-shadow: 0 0 20px rgba(0, 255, 157, 0.4), 0 0 40px rgba(0, 128, 55, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 30px rgba(0, 255, 157, 0.6), 0 0 60px rgba(0, 128, 55, 0.5);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars"></div>
+    <div class="scanline"></div>
+    <div class="orb one"></div>
+    <div class="orb two"></div>
+
+    <div class="container" style="position: relative; z-index: 3; padding: 30px;">
+        <div class="back-button">
+            <a href="/student-dashboard.html">
+                <svg width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+                </svg>
+                Back to Dashboard
+            </a>
+        </div>
+
+        <h1 style="text-align: center; margin-bottom: 40px; color: #00ff9d; text-shadow: 0 0 20px rgba(0, 255, 157, 0.6);">
+            <svg width="32" height="32" fill="currentColor" viewBox="0 0 16 16" style="vertical-align: middle; margin-right: 10px;">
+                <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2zM8 1.918l-.797.161A4.002 4.002 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4.002 4.002 0 0 0-3.203-3.92L8 1.917zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5.002 5.002 0 0 1 13 6c0 .88.32 4.2 1.22 6z"/>
+            </svg>
+            Announcements
+            {% if unread_count > 0 %}
+                <span style="display: inline-flex; align-items: center; justify-content: center; background: #ff5252; color: white; border-radius: 50%; width: 28px; height: 28px; font-size: 14px; font-weight: 700; margin-left: 10px;">{{ unread_count }}</span>
+            {% endif %}
+        </h1>
+
+        {% if announcements %}
+            {% for announcement in announcements %}
+                <div style="background: {% if announcement[7] %}rgba(15, 20, 45, 0.6){% else %}rgba(0, 255, 157, 0.08){% endif %}; backdrop-filter: blur(10px); border-radius: 15px; padding: 20px; margin-bottom: 20px; border: 2px solid {% if announcement[4] %}rgba(255, 193, 7, 0.4){% else %}rgba(0, 255, 157, 0.2){% endif %}; transition: all 0.3s ease;" 
+                     onclick="markAsRead({{ announcement[0] }}, this)">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                        <div style="flex: 1;">
+                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                                {% if not announcement[7] %}
+                                    <span style="display: inline-block; width: 10px; height: 10px; background: #ff5252; border-radius: 50%; animation: pulse 2s infinite;"></span>
+                                {% endif %}
+                                <h3 style="color: #00ff9d; margin: 0; font-size: 20px;">{{ announcement[1] }}</h3>
+                                {% if announcement[4] %}
+                                    <span style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; background: rgba(255, 193, 7, 0.2); border: 1px solid rgba(255, 193, 7, 0.4); border-radius: 20px; color: #ffc107; font-size: 12px; font-weight: 600;">
+                                        <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                                            <path d="M9.828.722a.5.5 0 0 1 .354.146l4.95 4.95a.5.5 0 0 1 0 .707c-.48.48-1.072.588-1.503.588-.177 0-.335-.018-.46-.039l-3.134 3.134a5.927 5.927 0 0 1 .16 1.013c.046.702-.032 1.687-.72 2.375a.5.5 0 0 1-.707 0l-2.829-2.828-3.182 3.182c-.195.195-1.219.902-1.414.707-.195-.195.512-1.22.707-1.414l3.182-3.182-2.828-2.829a.5.5 0 0 1 0-.707c.688-.688 1.673-.767 2.375-.72a5.922 5.922 0 0 1 1.013.16l3.134-3.133a2.772 2.772 0 0 1-.04-.461c0-.43.108-1.022.589-1.503a.5.5 0 0 1 .353-.146z"/>
+                                        </svg>
+                                        Pinned
+                                    </span>
+                                {% endif %}
+                            </div>
+                            <p style="color: rgba(255, 255, 255, 0.85); margin-bottom: 12px; line-height: 1.6; white-space: pre-wrap;">{{ announcement[2] }}</p>
+                            <div style="display: flex; gap: 20px; color: rgba(255, 255, 255, 0.5); font-size: 13px;">
+                                <span>📚 Course: <strong>{{ announcement[3] }}</strong></span>
+                                <span>📅 {{ announcement[5].strftime('%b %d, %Y %I:%M %p') }}</span>
+                                {% if announcement[7] %}
+                                    <span style="color: #4caf50;">✓ Read</span>
+                                {% else %}
+                                    <span style="color: #ff5252; font-weight: 600;">● New</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div style="text-align: center; padding: 60px; background: rgba(15, 20, 45, 0.4); border-radius: 15px; border: 2px dashed rgba(255, 255, 255, 0.2);">
+                <svg width="80" height="80" fill="rgba(255, 255, 255, 0.3)" viewBox="0 0 16 16" style="margin-bottom: 20px;">
+                    <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2zM8 1.918l-.797.161A4.002 4.002 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4.002 4.002 0 0 0-3.203-3.92L8 1.917zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5.002 5.002 0 0 1 13 6c0 .88.32 4.2 1.22 6z"/>
+                </svg>
+                <p style="color: rgba(255, 255, 255, 0.6); font-size: 18px;">No announcements yet</p>
+                <p style="color: rgba(255, 255, 255, 0.4); font-size: 14px; margin-top: 10px;">Check back later for updates</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <style>
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+    </style>
+
+    <script>
+        async function markAsRead(announcementId, card) {
+            try {
+                const response = await fetch(`/student/announcements/mark-read/${announcementId}`, {
+                    method: 'POST'
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Update card styling
+                    card.style.background = 'rgba(15, 20, 45, 0.6)';
+                    
+                    // Remove unread indicators
+                    const newBadge = card.querySelector('[style*="New"]');
+                    if (newBadge) {
+                        newBadge.style.color = '#4caf50';
+                        newBadge.textContent = '✓ Read';
+                    }
+                    
+                    const dot = card.querySelector('[style*="pulse"]');
+                    if (dot) {
+                        dot.remove();
+                    }
+                    
+                    // Update unread count
+                    setTimeout(() => location.reload(), 500);
+                }
+            } catch (error) {
+                console.error('Error marking as read:', error);
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATOM SHAALE - Edit Exam</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Century Gothic', 'Futura', -apple-system, BlinkMacSystemFont, sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background: #0a0e27;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(0, 128, 55, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(0, 255, 106, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(0, 128, 55, 0.12) 0%, transparent 40%);
+            animation: pulseGlow 8s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .animated-bg-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 128, 55, 0.03) 2px,
+                rgba(0, 128, 55, 0.03) 4px
+            );
+            pointer-events: none;
+            z-index: 0;
+            animation: scanlines 10s linear infinite;
+        }
+        
+        @keyframes scanlines {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(50px); }
+        }
+        
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 0 20px;
+        }
+        
+        .header-card {
+            background: rgba(16, 20, 35, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.6),
+                0 0 0 1px rgba(0, 128, 55, 0.4) inset,
+                0 0 40px rgba(0, 128, 55, 0.3);
+            border: 1px solid rgba(0, 128, 55, 0.5);
+            animation: slideDown 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            text-align: center;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        h2 {
+            font-size: 42px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #00ff6a 0%, #008037 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+            line-height: 1.2;
+            letter-spacing: -1px;
+            filter: drop-shadow(0 0 20px rgba(0, 255, 106, 0.5));
+        }
+        
+        .subtitle {
+            color: #b8e6d5;
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 0;
+        }
+        
+        .form-card {
+            background: rgba(16, 20, 35, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.6),
+                0 0 0 1px rgba(0, 128, 55, 0.4) inset,
+                0 0 40px rgba(0, 128, 55, 0.3);
+            border: 1px solid rgba(0, 128, 55, 0.5);
+            animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+            animation-delay: 0.1s;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        label {
+            display: block;
+            margin: 20px 0 8px;
+            color: #e0f2e9;
+            font-weight: 600;
+            font-size: 15px;
+        }
+        
+        input[type="text"],
+        textarea,
+        select,
+        input[type="file"] {
+            width: 100%;
+            padding: 14px 18px;
+            margin-top: 5px;
+            border-radius: 14px;
+            border: 2px solid rgba(0, 128, 55, 0.3);
+            font-size: 15px;
+            font-family: 'Century Gothic', 'Futura', sans-serif;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            background: linear-gradient(135deg, rgba(26, 32, 53, 0.6), rgba(16, 20, 35, 0.8));
+            color: #e0f2e9;
+            font-weight: 500;
+        }
+        
+        input[type="text"]:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: #008037;
+            background: rgba(16, 20, 35, 0.9);
+            box-shadow: 0 0 0 4px rgba(0, 128, 55, 0.2), 0 0 30px rgba(0, 255, 106, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        button {
+            padding: 16px 32px;
+            border: none;
+            border-radius: 14px;
+            cursor: pointer;
+            margin: 15px 8px;
+            font-size: 16px;
+            font-weight: 700;
+            font-family: 'Century Gothic', 'Futura', sans-serif;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+        
+        button:hover::before {
+            left: 100%;
+        }
+        
+        .add-btn {
+            background: linear-gradient(135deg, #008037, #00ff6a);
+            color: #000;
+            box-shadow: 0 8px 20px rgba(0, 128, 55, 0.4), 0 0 30px rgba(0, 255, 106, 0.3);
+        }
+        
+        .add-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(0, 128, 55, 0.5), 0 0 40px rgba(0, 255, 106, 0.4);
+        }
+        
+        .submit-btn {
+            background: linear-gradient(135deg, #008037 0%, #00ff6a 100%);
+            color: #000;
+            box-shadow: 0 10px 30px rgba(0, 128, 55, 0.5), 0 0 40px rgba(0, 255, 106, 0.4);
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(0, 128, 55, 0.6), 0 0 50px rgba(0, 255, 106, 0.5);
+        }
+        
+        .back-btn {
+            background: linear-gradient(135deg, rgba(107, 114, 128, 0.8), rgba(75, 85, 99, 0.8));
+            color: #e0f2e9;
+            text-decoration: none;
+            box-shadow: 0 8px 20px rgba(107, 114, 128, 0.4);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            border: 1px solid rgba(107, 114, 128, 0.5);
+        }
+        
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(107, 114, 128, 0.5);
+        }
+        
+        .question-group {
+            margin-top: 30px;
+            padding: 30px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, rgba(26, 32, 53, 0.6), rgba(16, 20, 35, 0.7));
+            border: 2px solid rgba(0, 128, 55, 0.3);
+            animation: fadeInScale 0.5s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        .question-group:hover {
+            border-color: #008037;
+            box-shadow: 0 10px 30px rgba(0, 128, 55, 0.3), 0 0 40px rgba(0, 255, 106, 0.2);
+        }
+        
+        .question-group h3 {
+            color: #e0f2e9;
+            margin-bottom: 20px;
+            font-size: 22px;
+            font-weight: 700;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(0, 128, 55, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .question-number-badge {
+            background: linear-gradient(135deg, #008037, #00ff6a);
+            color: #000;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 800;
+            box-shadow: 0 4px 12px rgba(0, 128, 55, 0.4), 0 0 20px rgba(0, 255, 106, 0.3);
+        }
+        
+        .mcq-options, .true-false-options {
+            background: rgba(10, 14, 39, 0.6);
+            padding: 25px;
+            border-radius: 16px;
+            margin-top: 20px;
+            border: 1px solid rgba(0, 128, 55, 0.2);
+        }
+        
+        .image-upload-section {
+            background: rgba(10, 14, 39, 0.6);
+            padding: 25px;
+            border-radius: 16px;
+            margin-top: 20px;
+            border: 1px solid rgba(0, 128, 55, 0.2);
+        }
+        
+        .button-group {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid rgba(0, 128, 55, 0.2);
+        }
+        
+        .info-box {
+            background: linear-gradient(135deg, rgba(0, 128, 55, 0.15), rgba(0, 255, 106, 0.1));
+            border-left: 4px solid #008037;
+            padding: 20px 24px;
+            margin: 25px 0;
+            border-radius: 12px;
+            color: #b8e6d5;
+            font-weight: 600;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        .alert {
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+        
+        .alert-success {
+            background: linear-gradient(135deg, rgba(0, 128, 55, 0.2), rgba(0, 255, 106, 0.15));
+            border-left: 4px solid #008037;
+            color: #b8e6d5;
+        }
+        
+        .alert-danger {
+            background: linear-gradient(135deg, rgba(220, 38, 38, 0.2), rgba(153, 27, 27, 0.15));
+            border-left: 4px solid #dc2626;
+            color: #fecaca;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 15px;
+                margin: 30px auto;
+            }
+            
+            h2 {
+                font-size: 32px;
+            }
+            
+            .header-card, .form-card {
+                padding: 30px 25px;
+                border-radius: 20px;
+            }
+            
+            .question-group {
+                padding: 25px 20px;
+            }
+            
+            button {
+                width: 100%;
+                justify-content: center;
+                margin: 10px 0;
+            }
+        }
+    </style>
+    <script>
+        let questionCounter = {{ questions|length }};
+
+        function addQuestion() {
+            let container = document.getElementById("questions-container");
+            
+            questionCounter++;
+            let questionIndex = questionCounter;
+
+            let questionHTML = `
+                <div class="question-group" id="question-${questionIndex}" data-question-number="${questionIndex}">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <h3 style="margin: 0;">
+                            <span class="question-number-badge">${questionIndex}</span>
+                            Question ${questionIndex}
+                        </h3>
+                        <button type="button" onclick="removeQuestion(${questionIndex})" 
+                                style="padding: 8px 16px; background: linear-gradient(135deg, #dc2626, #991b1b); 
+                                       color: white; border: none; border-radius: 10px; cursor: pointer; 
+                                       font-weight: 600; font-size: 14px; transition: all 0.3s; width: auto; margin: 0;"
+                                onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 20px rgba(220, 38, 38, 0.4)';"
+                                onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(220, 38, 38, 0.3)';">
+                            <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style="vertical-align: middle; margin-right: 4px;">
+                                <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                                <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                            </svg>
+                            Remove
+                        </button>
+                    </div>
+                    
+                    <label>Question Type:</label>
+                    <select name="question_type[]" onchange="toggleQuestionFields(this)" required>
+                        <option value="mcq">Multiple Choice (MCQ)</option>
+                        <option value="true_false">True or False</option>
+                        <option value="image_mcq">Image-based MCQ</option>
+                        <option value="descriptive">Descriptive Answer</option>
+                        <option value="video_response">Video Response</option>
+                    </select><br>
+                    
+                    <label>Question:</label>
+                    <textarea name="question[]" required placeholder="Enter your question here"></textarea><br>
+
+                    <div class="image-upload-section" style="display: none;">
+                        <label>Upload Question Image:</label>
+                        <input type="file" name="question_image[]" accept="image/*"><br>
+                    </div>
+
+                    <div class="mcq-options">
+                        <label>Option A:</label>
+                        <input type="text" name="option_a[]" placeholder="Enter option A"><br>
+
+                        <label>Option B:</label>
+                        <input type="text" name="option_b[]" placeholder="Enter option B"><br>
+
+                        <label>Option C:</label>
+                        <input type="text" name="option_c[]" placeholder="Enter option C"><br>
+
+                        <label>Option D:</label>
+                        <input type="text" name="option_d[]" placeholder="Enter option D"><br>
+
+                        <label>Correct Option:</label>
+                        <select name="correct_option[]">
+                            <option value="">Select correct answer</option>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                        </select><br>
+                    </div>
+
+                    <div class="true-false-options" style="display: none;">
+                        <label>Correct Answer:</label>
+                        <select name="tf_correct[]">
+                            <option value="">Select correct answer</option>
+                            <option value="True">True</option>
+                            <option value="False">False</option>
+                        </select><br>
+                    </div>
+
+                    <label>Explanation/Instructions:</label>
+                    <textarea name="explanation[]" placeholder="Optional explanation"></textarea><br>
+                </div>
+            `;
+
+            container.insertAdjacentHTML('beforeend', questionHTML);
+        }
+
+        function toggleQuestionFields(selectElement) {
+            const questionGroup = selectElement.closest('.question-group');
+            const mcqOptions = questionGroup.querySelector('.mcq-options');
+            const trueFalseOptions = questionGroup.querySelector('.true-false-options');
+            const imageUpload = questionGroup.querySelector('.image-upload-section');
+            const questionType = selectElement.value;
+            
+            // Hide all sections first
+            if (mcqOptions) mcqOptions.style.display = 'none';
+            if (trueFalseOptions) trueFalseOptions.style.display = 'none';
+            if (imageUpload) imageUpload.style.display = 'none';
+            
+            // Remove required
+            if (mcqOptions) {
+                mcqOptions.querySelectorAll('input, select').forEach(input => {
+                    input.removeAttribute('required');
+                });
+            }
+            if (trueFalseOptions) {
+                trueFalseOptions.querySelectorAll('select').forEach(input => {
+                    input.removeAttribute('required');
+                });
+            }
+            
+            // Show relevant sections
+            if (questionType === 'mcq') {
+                if (mcqOptions) {
+                    mcqOptions.style.display = 'block';
+                    mcqOptions.querySelectorAll('input[type="text"]').forEach(input => {
+                        input.setAttribute('required', 'required');
+                    });
+                    mcqOptions.querySelector('select[name="correct_option[]"]').setAttribute('required', 'required');
+                }
+            } else if (questionType === 'true_false') {
+                if (trueFalseOptions) {
+                    trueFalseOptions.style.display = 'block';
+                    trueFalseOptions.querySelector('select').setAttribute('required', 'required');
+                }
+            } else if (questionType === 'image_mcq') {
+                if (mcqOptions) mcqOptions.style.display = 'block';
+                if (imageUpload) imageUpload.style.display = 'block';
+                if (mcqOptions) {
+                    mcqOptions.querySelectorAll('input[type="text"]').forEach(input => {
+                        input.setAttribute('required', 'required');
+                    });
+                    mcqOptions.querySelector('select[name="correct_option[]"]').setAttribute('required', 'required');
+                }
+            }
+        }
+        
+        function removeQuestion(questionId) {
+            const questionElement = document.getElementById(`question-${questionId}`);
+            if (questionElement) {
+                if (confirm('Are you sure you want to remove this question?')) {
+                    questionElement.remove();
+                    renumberQuestions();
+                }
+            }
+        }
+        
+        function renumberQuestions() {
+            const questions = document.querySelectorAll('.question-group');
+            questions.forEach((question, index) => {
+                const newNumber = index + 1;
+                const badge = question.querySelector('.question-number-badge');
+                const heading = question.querySelector('h3');
+                
+                if (badge) badge.textContent = newNumber;
+                if (heading) {
+                    const headingText = heading.childNodes;
+                    headingText.forEach(node => {
+                        if (node.nodeType === Node.TEXT_NODE && node.textContent.includes('Question')) {
+                            node.textContent = ` Question ${newNumber} `;
+                        }
+                    });
+                }
+            });
+        }
+        
+        // Initialize question field visibility on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('select[name="question_type[]"]').forEach(select => {
+                toggleQuestionFields(select);
+            });
+        });
+        
+        function validateForm() {
+            const questions = document.querySelectorAll('.question-group');
+            if (questions.length === 0) {
+                alert('❌ Error: You must have at least one question in the exam!\n\nPlease click the "Add Question" button to add questions.');
+                return false;
+            }
+            return true;
+        }
+    </script>
+</head>
+<body>
+    <div class="animated-bg-overlay"></div>
+    
+    <div class="container">
+        <div class="header-card">
+            <h2>
+                <svg width="48" height="48" fill="currentColor" viewBox="0 0 16 16" style="vertical-align: middle; margin-right: 12px; opacity: 0.9;">
+                    <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
+                </svg>
+                Edit Exam
+            </h2>
+            <p class="subtitle">Modify exam questions and settings</p>
+        </div>
+        
+        <div class="form-card">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <form action="{{ url_for('edit_exam', exam_id=exam[0]) }}" method="POST" enctype="multipart/form-data" onsubmit="return validateForm()">
+                <div class="info-box">
+                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16" style="vertical-align: middle; margin-right: 8px;">
+                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                        <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+                    </svg>
+                    <strong>Editing Mode:</strong> Modify exam details and questions below. You can add new questions, edit existing ones, or remove questions.
+                </div>
+                
+                <label>Exam Title:</label>
+                <input type="text" name="exam_title" required value="{{ exam[1] }}"><br>
+
+                <label>Subject:</label>
+                <input type="text" name="subject" required value="{{ exam[2] }}"><br>
+
+                <label>
+                    <svg width="18" height="18" fill="currentColor" viewBox="0 0 16 16" style="vertical-align: middle; margin-right: 6px;">
+                        <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"/>
+                        <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"/>
+                    </svg>
+                    Time Limit (Optional):
+                </label>
+                <input type="number" name="time_limit" min="1" max="300" value="{{ exam[5] if exam|length > 5 and exam[5] else '' }}" placeholder="Enter time in minutes (leave blank for no limit)">
+                <div style="background: rgba(0, 255, 157, 0.1); border-left: 3px solid #00ff9d; padding: 12px 16px; margin: 10px 0 20px 0; border-radius: 8px; font-size: 13px; color: rgba(255, 255, 255, 0.8);">
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style="vertical-align: middle; margin-right: 8px;">
+                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                        <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+                    </svg>
+                    Set time in minutes. Exam will auto-submit when time expires. Leave blank for unlimited time.
+                </div>
+
+                <div id="questions-container">
+                    {% for question in questions %}
+                    <div class="question-group" id="question-{{ loop.index }}" data-question-number="{{ loop.index }}">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <h3 style="margin: 0;">
+                                <span class="question-number-badge">{{ loop.index }}</span>
+                                Question {{ loop.index }}
+                            </h3>
+                            <button type="button" onclick="removeQuestion({{ loop.index }})" 
+                                    style="padding: 8px 16px; background: linear-gradient(135deg, #dc2626, #991b1b); 
+                                           color: white; border: none; border-radius: 10px; cursor: pointer; 
+                                           font-weight: 600; font-size: 14px; transition: all 0.3s; width: auto; margin: 0;">
+                                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style="vertical-align: middle; margin-right: 4px;">
+                                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                                </svg>
+                                Remove
+                            </button>
+                        </div>
+                        
+                        <label>Question Type:</label>
+                        <select name="question_type[]" onchange="toggleQuestionFields(this)" required>
+                            <option value="mcq" {% if question[3] == 'mcq' %}selected{% endif %}>Multiple Choice (MCQ)</option>
+                            <option value="true_false" {% if question[3] == 'true_false' %}selected{% endif %}>True or False</option>
+                            <option value="image_mcq" {% if question[3] == 'image_mcq' %}selected{% endif %}>Image-based MCQ</option>
+                            <option value="descriptive" {% if question[3] == 'descriptive' %}selected{% endif %}>Descriptive Answer</option>
+                            <option value="video_response" {% if question[3] == 'video_response' %}selected{% endif %}>Video Response</option>
+                        </select><br>
+                        
+                        <label>Question:</label>
+                        <textarea name="question[]" required>{{ question[2] }}</textarea><br>
+
+                        <div class="image-upload-section" style="display: none;">
+                            <label>Upload Question Image:</label>
+                            {% if question[10] %}
+                            <p style="color: #b8e6d5; margin: 10px 0;">Current image: {{ question[10].split('/')[-1] }}</p>
+                            {% endif %}
+                            <input type="file" name="question_image[]" accept="image/*"><br>
+                        </div>
+
+                        <div class="mcq-options">
+                            <label>Option A:</label>
+                            <input type="text" name="option_a[]" value="{{ question[4] if question[4] else '' }}"><br>
+
+                            <label>Option B:</label>
+                            <input type="text" name="option_b[]" value="{{ question[5] if question[5] else '' }}"><br>
+
+                            <label>Option C:</label>
+                            <input type="text" name="option_c[]" value="{{ question[6] if question[6] else '' }}"><br>
+
+                            <label>Option D:</label>
+                            <input type="text" name="option_d[]" value="{{ question[7] if question[7] else '' }}"><br>
+
+                            <label>Correct Option:</label>
+                            <select name="correct_option[]">
+                                <option value="">Select correct answer</option>
+                                <option value="A" {% if question[8] == 'A' %}selected{% endif %}>A</option>
+                                <option value="B" {% if question[8] == 'B' %}selected{% endif %}>B</option>
+                                <option value="C" {% if question[8] == 'C' %}selected{% endif %}>C</option>
+                                <option value="D" {% if question[8] == 'D' %}selected{% endif %}>D</option>
+                            </select><br>
+                        </div>
+
+                        <div class="true-false-options" style="display: none;">
+                            <label>Correct Answer:</label>
+                            <select name="tf_correct[]">
+                                <option value="">Select correct answer</option>
+                                <option value="True" {% if question[8] == 'True' %}selected{% endif %}>True</option>
+                                <option value="False" {% if question[8] == 'False' %}selected{% endif %}>False</option>
+                            </select><br>
+                        </div>
+
+                        <label>Explanation/Instructions:</label>
+                        <textarea name="explanation[]">{{ question[9] if question[9] else '' }}</textarea><br>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="button-group">
+                    <button type="button" class="add-btn" onclick="addQuestion()">
+                        <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                        </svg>
+                        Add Question
+                    </button>
+                    <button type="submit" class="submit-btn">
+                        <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/>
+                        </svg>
+                        Update Exam
+                    </button>
+                    <a href="{{ url_for('manage_exams') }}" class="back-btn">
+                        <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+                        </svg>
+                        Back to Manage Exams
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

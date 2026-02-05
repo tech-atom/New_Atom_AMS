@@ -1,0 +1,401 @@
+<!-- Video Recording Component - Include this in attempt_exam.html -->
+<style>
+.video-recording-container {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 30px;
+    margin: 20px 0;
+    border: 2px solid #667eea;
+}
+
+.video-recording-container h3 {
+    color: #667eea;
+    margin-bottom: 15px;
+}
+
+.video-preview-area {
+    position: relative;
+    background: #000;
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 20px 0;
+    max-width: 640px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.video-preview-area video {
+    width: 100%;
+    display: block;
+}
+
+.recording-controls {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin: 20px 0;
+    flex-wrap: wrap;
+}
+
+.recording-controls button {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s;
+}
+
+.btn-start-recording {
+    background: #28a745;
+    color: white;
+}
+
+.btn-start-recording:hover {
+    background: #218838;
+}
+
+.btn-stop-recording {
+    background: #dc3545;
+    color: white;
+}
+
+.btn-stop-recording:hover {
+    background: #c82333;
+}
+
+.btn-play-preview {
+    background: #17a2b8;
+    color: white;
+}
+
+.btn-play-preview:hover {
+    background: #138496;
+}
+
+.btn-retry {
+    background: #ffc107;
+    color: #000;
+}
+
+.btn-retry:hover {
+    background: #e0a800;
+}
+
+.btn-submit-video {
+    background: #667eea;
+    color: white;
+    font-size: 18px;
+}
+
+.btn-submit-video:hover {
+    background: #5568d3;
+}
+
+.recording-indicator {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background: rgba(220, 53, 69, 0.9);
+    color: white;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-weight: 600;
+    display: none;
+    align-items: center;
+    gap: 8px;
+}
+
+.recording-indicator.active {
+    display: flex;
+}
+
+.recording-indicator .pulse {
+    width: 12px;
+    height: 12px;
+    background: white;
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+.timer-display {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-family: 'Courier New', monospace;
+    font-size: 18px;
+}
+
+.attempt-info {
+    background: #fff3cd;
+    border-left: 4px solid #ffc107;
+    padding: 15px;
+    margin: 15px 0;
+    border-radius: 5px;
+}
+
+.attempt-info strong {
+    color: #856404;
+}
+
+.video-instructions {
+    background: #d1ecf1;
+    border-left: 4px solid #17a2b8;
+    padding: 15px;
+    margin: 15px 0;
+    border-radius: 5px;
+    color: #0c5460;
+}
+
+.upload-progress {
+    display: none;
+    margin: 20px 0;
+}
+
+.upload-progress .progress-bar {
+    width: 100%;
+    height: 30px;
+    background: #e0e0e0;
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.upload-progress .progress-fill {
+    height: 100%;
+    background: linear-gradient(to right, #667eea, #764ba2);
+    transition: width 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+}
+</style>
+
+<script>
+// Video Recording Functionality
+class VideoRecorder {
+    constructor(questionId, examId, maxAttempts = 2) {
+        this.questionId = questionId;
+        this.examId = examId;
+        this.maxAttempts = maxAttempts;
+        this.currentAttempt = 1;
+        this.mediaRecorder = null;
+        this.recordedChunks = [];
+        this.stream = null;
+        this.recordingStartTime = null;
+        this.timerInterval = null;
+        
+        this.liveVideo = document.getElementById(`liveVideo_${questionId}`);
+        this.playbackVideo = document.getElementById(`playbackVideo_${questionId}`);
+        this.recordingIndicator = document.getElementById(`recordingIndicator_${questionId}`);
+        this.timerDisplay = document.getElementById(`timerDisplay_${questionId}`);
+        this.attemptInfo = document.getElementById(`attemptInfo_${questionId}`);
+        
+        this.btnStartRecording = document.getElementById(`btnStartRecording_${questionId}`);
+        this.btnStopRecording = document.getElementById(`btnStopRecording_${questionId}`);
+        this.btnPlayPreview = document.getElementById(`btnPlayPreview_${questionId}`);
+        this.btnRetry = document.getElementById(`btnRetry_${questionId}`);
+        this.btnSubmitVideo = document.getElementById(`btnSubmitVideo_${questionId}`);
+        
+        this.uploadProgress = document.getElementById(`uploadProgress_${questionId}`);
+        this.progressFill = document.getElementById(`progressFill_${questionId}`);
+        
+        this.initializeCamera();
+        this.attachEventListeners();
+    }
+    
+    async initializeCamera() {
+        try {
+            this.stream = await navigator.mediaDevices.getUserMedia({ 
+                video: { width: 1280, height: 720 }, 
+                audio: true 
+            });
+            this.liveVideo.srcObject = this.stream;
+            this.liveVideo.style.display = 'block';
+            this.playbackVideo.style.display = 'none';
+        } catch (error) {
+            alert('Camera access denied! Please allow camera permissions.');
+            console.error('Camera error:', error);
+        }
+    }
+    
+    attachEventListeners() {
+        this.btnStartRecording.addEventListener('click', () => this.startRecording());
+        this.btnStopRecording.addEventListener('click', () => this.stopRecording());
+        this.btnPlayPreview.addEventListener('click', () => this.playPreview());
+        this.btnRetry.addEventListener('click', () => this.retry());
+        this.btnSubmitVideo.addEventListener('click', () => this.submitVideo());
+    }
+    
+    startRecording() {
+        this.recordedChunks = [];
+        this.mediaRecorder = new MediaRecorder(this.stream, {
+            mimeType: 'video/webm;codecs=vp9'
+        });
+        
+        this.mediaRecorder.ondataavailable = (event) => {
+            if (event.data.size > 0) {
+                this.recordedChunks.push(event.data);
+            }
+        };
+        
+        this.mediaRecorder.onstop = () => {
+            const blob = new Blob(this.recordedChunks, { type: 'video/webm' });
+            this.playbackVideo.src = URL.createObjectURL(blob);
+            this.liveVideo.style.display = 'none';
+            this.playbackVideo.style.display = 'block';
+            
+            this.btnPlayPreview.disabled = false;
+            this.btnSubmitVideo.disabled = false;
+            
+            if (this.currentAttempt < this.maxAttempts) {
+                this.btnRetry.disabled = false;
+            }
+        };
+        
+        this.mediaRecorder.start();
+        this.recordingStartTime = Date.now();
+        this.startTimer();
+        
+        this.recordingIndicator.classList.add('active');
+        this.btnStartRecording.disabled = true;
+        this.btnStopRecording.disabled = false;
+    }
+    
+    stopRecording() {
+        if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') {
+            this.mediaRecorder.stop();
+            this.stopTimer();
+            this.recordingIndicator.classList.remove('active');
+            this.btnStopRecording.disabled = true;
+        }
+    }
+    
+    startTimer() {
+        this.timerInterval = setInterval(() => {
+            const elapsed = Math.floor((Date.now() - this.recordingStartTime) / 1000);
+            const minutes = Math.floor(elapsed / 60);
+            const seconds = elapsed % 60;
+            this.timerDisplay.textContent = 
+                `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }, 1000);
+    }
+    
+    stopTimer() {
+        if (this.timerInterval) {
+            clearInterval(this.timerInterval);
+            this.timerInterval = null;
+        }
+    }
+    
+    playPreview() {
+        this.playbackVideo.play();
+    }
+    
+    retry() {
+        if (this.currentAttempt >= this.maxAttempts) {
+            alert('Maximum attempts reached!');
+            return;
+        }
+        
+        this.currentAttempt++;
+        this.attemptInfo.innerHTML = `<strong>Attempt ${this.currentAttempt} of ${this.maxAttempts}</strong> - You have ${this.maxAttempts - this.currentAttempt + 1} chance(s) left`;
+        
+        this.recordedChunks = [];
+        this.playbackVideo.src = '';
+        this.liveVideo.style.display = 'block';
+        this.playbackVideo.style.display = 'none';
+        this.timerDisplay.textContent = '00:00';
+        
+        this.btnStartRecording.disabled = false;
+        this.btnStopRecording.disabled = true;
+        this.btnPlayPreview.disabled = true;
+        this.btnRetry.disabled = true;
+        this.btnSubmitVideo.disabled = true;
+        
+        if (this.currentAttempt >= this.maxAttempts) {
+            this.btnRetry.style.display = 'none';
+        }
+    }
+    
+    async submitVideo() {
+        if (this.recordedChunks.length === 0) {
+            alert('Please record a video first!');
+            return;
+        }
+        
+        const blob = new Blob(this.recordedChunks, { type: 'video/webm' });
+        const formData = new FormData();
+        formData.append('video', blob, `video_q${this.questionId}.webm`);
+        formData.append('exam_id', this.examId);
+        formData.append('question_id', this.questionId);
+        formData.append('attempt_number', this.currentAttempt);
+        formData.append('duration', Math.floor((Date.now() - this.recordingStartTime) / 1000));
+        
+        this.uploadProgress.style.display = 'block';
+        this.btnSubmitVideo.disabled = true;
+        
+        try {
+            const response = await fetch('/upload_video_response', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                this.progressFill.style.width = '100%';
+                this.progressFill.textContent = '✓ Upload Complete!';
+                
+                // Disable all controls
+                this.btnStartRecording.disabled = true;
+                this.btnRetry.disabled = true;
+                this.btnSubmitVideo.disabled = true;
+                
+                // Stop camera stream
+                if (this.stream) {
+                    this.stream.getTracks().forEach(track => track.stop());
+                }
+                
+                alert('Video submitted successfully!');
+            } else {
+                alert('Upload failed: ' + result.message);
+                this.btnSubmitVideo.disabled = false;
+            }
+        } catch (error) {
+            alert('Error uploading video: ' + error.message);
+            this.btnSubmitVideo.disabled = false;
+        } finally {
+            setTimeout(() => {
+                this.uploadProgress.style.display = 'none';
+                this.progressFill.style.width = '0%';
+            }, 2000);
+        }
+    }
+}
+
+// Initialize video recorders when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    const videoQuestions = document.querySelectorAll('[data-question-type="video_response"]');
+    videoQuestions.forEach(container => {
+        const questionId = container.dataset.questionId;
+        const examId = container.dataset.examId;
+        new VideoRecorder(questionId, examId, 2);
+    });
+});
+</script>

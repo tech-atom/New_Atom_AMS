@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Exams - ATOM SHAALE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='futuristic-theme.css') }}">
+    <style>
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 12px;
+            border: 2px solid rgba(0, 255, 157, 0.4);
+            border-radius: 8px;
+            cursor: pointer;
+            color: white;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.3s;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+        }
+        .btn-edit {
+            border-color: rgba(0, 168, 255, 0.6);
+            color: #00a8ff;
+        }
+        .btn-edit:hover {
+            background: rgba(0, 168, 255, 0.3);
+            border-color: #00a8ff;
+            box-shadow: 0 0 20px rgba(0, 168, 255, 0.6);
+            transform: scale(1.05);
+        }
+        .btn-delete {
+            border-color: rgba(255, 68, 68, 0.6);
+            color: #ff4444;
+        }
+        .btn-delete:hover {
+            background: rgba(255, 68, 68, 0.3);
+            border-color: #ff4444;
+            box-shadow: 0 0 20px rgba(255, 68, 68, 0.6);
+            transform: scale(1.05);
+        }
+        .btn-toggle {
+            border-color: rgba(156, 39, 176, 0.6);
+            color: #9c27b0;
+        }
+        .btn-toggle:hover {
+            background: rgba(156, 39, 176, 0.3);
+            border-color: #9c27b0;
+            box-shadow: 0 0 20px rgba(156, 39, 176, 0.6);
+            transform: scale(1.05);
+        }
+        .btn-toggle.active {
+            background: rgba(76, 175, 80, 0.3);
+            border-color: #4caf50;
+            color: #4caf50;
+        }
+        .btn-toggle.active:hover {
+            box-shadow: 0 0 20px rgba(76, 175, 80, 0.6);
+        }
+        .no-data {
+            text-align: center;
+            padding: 60px 20px;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 16px;
+        }
+        .stats-banner {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        .stat-mini {
+            background: rgba(16, 20, 35, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 255, 157, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        .stat-mini:hover {
+            transform: translateY(-5px);
+            border-color: rgba(0, 255, 157, 0.6);
+            box-shadow: 0 10px 30px rgba(0, 255, 157, 0.3);
+        }
+        .stat-mini h3 {
+            font-family: 'Century Gothic', 'Futura', sans-serif;
+            font-size: 36px;
+            background: linear-gradient(135deg, #00ff9d, #00a8ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+        .stat-mini p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-overlay"></div>
+    
+    <script>
+        for(let i = 0; i < 15; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 15 + 's';
+            particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+            document.body.appendChild(particle);
+        }
+    </script>
+
+    <div class="container">
+        <div class="header">
+            <h1>
+                <svg width="48" height="48" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M5 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 5 8zm0-2.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm0 5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm-1-5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0zM4 8a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0zm0 2.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0z"/>
+                    <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2zm10-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1z"/>
+                </svg>
+                Manage Exams
+            </h1>
+            <p>View, Edit, and Delete Examination Records</p>
+        </div>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% if exams %}
+        <div class="stats-banner">
+            <div class="stat-mini">
+                <h3>{{ exams|length }}</h3>
+                <p>Total Exams</p>
+            </div>
+            <div class="stat-mini">
+                <h3>{{ exams|sum(attribute=4) }}</h3>
+                <p>Total Questions</p>
+            </div>
+            <div class="stat-mini">
+                <h3>{{ exams|selectattr('4', 'gt', 0)|list|length }}</h3>
+                <p>Active Exams</p>
+            </div>
+        </div>
+
+        <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Exam Title</th>
+                    <th>Subject</th>
+                    <th>Assigned Courses</th>
+                    <th>Questions</th>
+                    <th>Created Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for exam in exams %}
+                <tr>
+                    <td>{{ exam[0] }}</td>
+                    <td>{{ exam[1] }}</td>
+                    <td>{{ exam[2] }}</td>
+                    <td>
+                        {% if exam[3] %}
+                            {% set courses_list = exam[3].split(', ') %}
+                            {% if 'All Courses' in courses_list %}
+                                <span class="badge" style="background: linear-gradient(135deg, #00ff9d, #00a8ff); color: #000; font-weight: 700;">All Courses</span>
+                            {% elif courses_list|length > 2 %}
+                                <span class="badge badge-info">{{ courses_list[0] }}</span>
+                                <span class="badge badge-info">{{ courses_list[1] }}</span>
+                                <span class="badge badge-secondary" title="{{ exam[3] }}">+{{ courses_list|length - 2 }} more</span>
+                            {% else %}
+                                {% for course in courses_list %}
+                                    <span class="badge badge-info">{{ course }}</span>
+                                {% endfor %}
+                            {% endif %}
+                        {% else %}
+                            <span class="badge badge-warning">Not Assigned</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="badge {% if exam[4] > 0 %}badge-success{% else %}badge-warning{% endif %}">
+                            {{ exam[4] }}
+                        </span>
+                    </td>
+                    <td>
+                        <form action="{{ url_for('toggle_score_visibility', exam_id=exam[0]) }}" method="POST" style="display:inline;">
+                            <button type="submit" class="btn-small btn-toggle {% if exam[6] == 1 %}active{% endif %}" 
+                                    title="{% if exam[6] == 1 %}Students can see scores{% else %}Scores are hidden from students{% endif %}">
+                                {% if exam[6] == 1 %}
+                                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                    <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z"/>
+                                    <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z"/>
+                                </svg>
+                                Visible
+                                {% else %}
+                                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                    <path d="M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7.028 7.028 0 0 0-2.79.588l.77.771A5.944 5.944 0 0 1 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.134 13.134 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755-.165.165-.337.328-.517.486l.708.709z"/>
+                                    <path d="M11.297 9.176a3.5 3.5 0 0 0-4.474-4.474l.823.823a2.5 2.5 0 0 1 2.829 2.829l.822.822zm-2.943 1.299.822.822a3.5 3.5 0 0 1-4.474-4.474l.823.823a2.5 2.5 0 0 0 2.829 2.829z"/>
+                                    <path d="M3.35 5.47c-.18.16-.353.322-.518.487A13.134 13.134 0 0 0 1.172 8l.195.288c.335.48.83 1.12 1.465 1.755C4.121 11.332 5.881 12.5 8 12.5c.716 0 1.39-.133 2.02-.36l.77.772A7.029 7.029 0 0 1 8 13.5C3 13.5 0 8 0 8s.939-1.721 2.641-3.238l.708.709zm10.296 8.884-12-12 .708-.708 12 12-.708.708z"/>
+                                </svg>
+                                Hidden
+                                {% endif %}
+                            </button>
+                        </form>
+                    </td>
+                    <td>{{ exam[5].strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <a href="{{ url_for('edit_exam', exam_id=exam[0]) }}" class="btn-small btn-edit">
+                                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                    <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
+                                </svg>
+                                Edit
+                            </a>
+                            <form action="{{ url_for('delete_exam', exam_id=exam[0]) }}" method="POST" style="display:inline;" 
+                                  onsubmit="return confirm('Are you sure you want to delete this exam? This action cannot be undone!');">
+                                <button type="submit" class="btn-small btn-delete">
+                                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                        <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                                        <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                                    </svg>
+                                    Delete
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+        {% else %}
+        <div class="glass-card no-data">
+            <svg width="80" height="80" fill="rgba(0, 255, 157, 0.3)" viewBox="0 0 16 16" style="margin-bottom: 20px;">
+                <path d="M5 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 5 8zm0-2.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm0 5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm-1-5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0zM4 8a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0zm0 2.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0z"/>
+                <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2zm10-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1z"/>
+            </svg>
+            <h3 style="font-family: 'Century Gothic', 'Futura', sans-serif; color: #00ff9d; margin-bottom: 10px;">No Exams Created Yet</h3>
+            <p style="color: rgba(255, 255, 255, 0.5);">Create your first exam from the dashboard</p>
+        </div>
+        {% endif %}
+
+        <div style="text-align: center; margin-top: 40px;">
+            <a href="/admin-dashboard.html" class="btn">
+                <svg width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+                </svg>
+                Back to Dashboard
+            </a>
+        </div>
+    </div>
+</body>
+</html>

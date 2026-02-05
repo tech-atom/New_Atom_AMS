@@ -1,0 +1,312 @@
+╔════════════════════════════════════════════════════════════════════════════╗
+║                    SAMPLE QUESTIONS FOR BULK UPLOAD                        ║
+║                         Cognitio Pro LMS System                            ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+This file contains sample questions in an easy-to-read format.
+Use this as a reference when creating your question paper document to upload.
+
+════════════════════════════════════════════════════════════════════════════
+
+📝 MULTIPLE CHOICE QUESTIONS (MCQ)
+════════════════════════════════════════════════════════════════════════════
+
+Question 1 [MCQ]:
+What is the primary function of the CPU in a computer?
+A) Store data permanently
+B) Process instructions and perform calculations
+C) Display graphics on screen
+D) Connect to the internet
+Correct Answer: B
+Explanation: The CPU (Central Processing Unit) is the brain of the computer that executes instructions and performs calculations.
+
+---
+
+Question 2 [MCQ]:
+Which of the following is NOT a programming language?
+A) Python
+B) HTML
+C) Java
+D) Photoshop
+Correct Answer: D
+Explanation: Photoshop is image editing software, not a programming language.
+
+---
+
+Question 3 [MCQ]:
+What does SQL stand for?
+A) Standard Query Language
+B) Structured Query Language
+C) Simple Question Language
+D) System Quality Language
+Correct Answer: B
+Explanation: SQL (Structured Query Language) is used for managing and querying databases.
+
+---
+
+Question 4 [MCQ]:
+In Python, which symbol is used for comments?
+A) //
+B) /* */
+C) #
+D) --
+Correct Answer: C
+Explanation: Python uses the hash symbol (#) for single-line comments.
+
+---
+
+Question 5 [MCQ]:
+What is the binary equivalent of decimal number 10?
+A) 1010
+B) 1100
+C) 1001
+D) 1111
+Correct Answer: A
+Explanation: 10 in decimal = 1010 in binary (8 + 2 = 10)
+
+════════════════════════════════════════════════════════════════════════════
+
+✓ TRUE/FALSE QUESTIONS
+════════════════════════════════════════════════════════════════════════════
+
+Question 6 [TRUE/FALSE]:
+HTTP stands for HyperText Transfer Protocol.
+Options: True / False
+Correct Answer: True
+Explanation: HTTP is indeed HyperText Transfer Protocol, used for transmitting web pages.
+
+---
+
+Question 7 [TRUE/FALSE]:
+An IP address is a unique identifier for devices on a network.
+Options: True / False
+Correct Answer: True
+Explanation: Every device on a network has a unique IP address for identification and communication.
+
+---
+
+Question 8 [TRUE/FALSE]:
+JavaScript and Java are the same programming language.
+Options: True / False
+Correct Answer: False
+Explanation: Despite similar names, JavaScript and Java are completely different languages with different purposes.
+
+---
+
+Question 9 [TRUE/FALSE]:
+The binary number system uses only 0 and 1.
+Options: True / False
+Correct Answer: True
+Explanation: Binary is a base-2 number system consisting only of digits 0 and 1.
+
+---
+
+Question 10 [TRUE/FALSE]:
+HTTPS is less secure than HTTP.
+Options: True / False
+Correct Answer: False
+Explanation: HTTPS is MORE secure than HTTP as it encrypts data transmission using SSL/TLS.
+
+════════════════════════════════════════════════════════════════════════════
+
+🖼️ IMAGE-BASED MCQ QUESTIONS
+════════════════════════════════════════════════════════════════════════════
+
+Question 11 [IMAGE MCQ]:
+Identify the Python logo shown in the image.
+[Upload image: python_logo.png separately in the system]
+A) Python
+B) Java
+C) Ruby
+D) PHP
+Correct Answer: A
+Explanation: The image shows two intertwined snakes (blue and yellow), which is the official Python logo.
+
+---
+
+Question 12 [IMAGE MCQ]:
+What type of network topology is shown in the diagram?
+[Upload image: network_topology.jpg separately in the system]
+A) Star Topology
+B) Ring Topology
+C) Bus Topology
+D) Mesh Topology
+Correct Answer: A
+Explanation: The diagram shows a central hub with devices connected in a star pattern.
+
+---
+
+Question 13 [IMAGE MCQ]:
+Identify the database symbol in the flowchart.
+[Upload image: flowchart_symbols.png separately in the system]
+A) Rectangle
+B) Diamond
+C) Cylinder
+D) Circle
+Correct Answer: C
+Explanation: A cylinder is the standard symbol for database storage in flowcharts.
+
+════════════════════════════════════════════════════════════════════════════
+
+📄 DESCRIPTIVE QUESTIONS
+════════════════════════════════════════════════════════════════════════════
+
+Question 14 [DESCRIPTIVE]:
+Explain the difference between front-end and back-end web development. Include examples of technologies used in each.
+
+Instructions:
+- Write 250-400 words
+- Cover: definitions, responsibilities, technologies, tools
+- Provide real-world examples
+- Time limit: 15 minutes
+- Key points: HTML/CSS/JS for front-end, databases/servers for back-end
+
+---
+
+Question 15 [DESCRIPTIVE]:
+Describe the Software Development Life Cycle (SDLC) and explain each phase in detail.
+
+Instructions:
+- Minimum 300 words
+- Include all phases: Planning, Analysis, Design, Implementation, Testing, Deployment, Maintenance
+- Explain importance of each phase
+- Provide examples
+- Time limit: 20 minutes
+
+---
+
+Question 16 [DESCRIPTIVE]:
+What is Object-Oriented Programming (OOP)? Explain the four main pillars of OOP with examples.
+
+Instructions:
+- Write 350-500 words
+- Cover: Encapsulation, Abstraction, Inheritance, Polymorphism
+- Provide code examples (any language)
+- Explain benefits of OOP
+- Time limit: 20 minutes
+
+---
+
+Question 17 [DESCRIPTIVE]:
+Discuss the importance of cybersecurity in modern digital systems. What are the main threats and how can they be prevented?
+
+Instructions:
+- Minimum 400 words
+- Cover: types of threats (malware, phishing, DDoS, etc.)
+- Prevention methods
+- Best practices for individuals and organizations
+- Real-world examples
+- Time limit: 25 minutes
+
+════════════════════════════════════════════════════════════════════════════
+
+🎥 VIDEO RESPONSE QUESTIONS
+════════════════════════════════════════════════════════════════════════════
+
+Question 18 [VIDEO RESPONSE]:
+Introduce yourself and explain your interest in computer science. What are your career goals?
+
+Recording Instructions:
+- Duration: 2-3 minutes
+- Look at the camera
+- Speak clearly and confidently
+- Mention: name, background, why you chose this field, future aspirations
+- Professional appearance recommended
+- Maximum 2 attempts allowed
+
+---
+
+Question 19 [VIDEO RESPONSE]:
+Demonstrate how to create a simple HTML webpage with a heading, paragraph, and an image.
+
+Recording Instructions:
+- Duration: 4-5 minutes
+- Show your screen and/or code on paper
+- Explain each HTML tag as you write it
+- Open the HTML file in a browser to show the result
+- Explain: <!DOCTYPE>, <html>, <head>, <body>, <h1>, <p>, <img>
+- Maximum 2 attempts allowed
+
+---
+
+Question 20 [VIDEO RESPONSE]:
+Explain the concept of loops in programming. Provide examples using pseudocode or any programming language.
+
+Recording Instructions:
+- Duration: 3-4 minutes
+- Use whiteboard/paper or screen sharing
+- Explain: for loop, while loop, do-while loop
+- Show at least 2 examples with different scenarios
+- Explain when to use each type
+- Maximum 2 attempts allowed
+
+---
+
+Question 21 [VIDEO RESPONSE]:
+Perform a live demonstration of debugging a simple code error.
+
+Recording Instructions:
+- Duration: 5-6 minutes
+- Prepare code with a deliberate error beforehand
+- Show the error message
+- Explain your debugging approach
+- Fix the error step by step
+- Run the corrected code
+- Explain what was wrong and why your fix worked
+- Maximum 2 attempts allowed
+
+════════════════════════════════════════════════════════════════════════════
+
+📊 COMPLETE EXAM EXAMPLE STRUCTURE
+════════════════════════════════════════════════════════════════════════════
+
+Exam Title: Introduction to Computer Science - Midterm Exam
+Subject: Computer Science 101
+Time Limit: 90 minutes
+Total Questions: 21
+Total Points: 100
+
+Breakdown:
+- MCQ (Questions 1-5): 5 questions × 4 points = 20 points
+- True/False (Questions 6-10): 5 questions × 2 points = 10 points  
+- Image MCQ (Questions 11-13): 3 questions × 5 points = 15 points
+- Descriptive (Questions 14-17): 4 questions × 10 points = 40 points
+- Video Response (Questions 18-21): 4 questions × 3.75 points = 15 points
+
+════════════════════════════════════════════════════════════════════════════
+
+💡 TIPS FOR CREATING YOUR QUESTION PAPER:
+
+1. ✅ Mix question types for comprehensive assessment
+2. ✅ Ensure questions are clear and unambiguous
+3. ✅ Provide detailed explanations for learning purposes
+4. ✅ Set appropriate time limits for descriptive/video questions
+5. ✅ For image MCQs, prepare images in advance (JPG, PNG formats)
+6. ✅ Test your questions before finalizing the exam
+7. ✅ Use professional language and proper grammar
+8. ✅ Align questions with course learning objectives
+9. ✅ Balance difficulty levels (easy, medium, hard)
+10. ✅ Include point values if using weighted scoring
+
+════════════════════════════════════════════════════════════════════════════
+
+📁 HOW TO UPLOAD YOUR QUESTION PAPER:
+
+1. Log in as Admin
+2. Navigate to "Create Exam"
+3. Fill in exam details:
+   - Exam Title
+   - Subject
+   - Time Limit
+   - Assign to Courses
+4. Upload your question paper document (this file or similar)
+5. Manually add each question using "Add Question" button
+6. Select question type, enter details, upload images if needed
+7. Click "Create Exam" when finished
+
+════════════════════════════════════════════════════════════════════════════
+
+For detailed instructions, refer to: QUESTION_UPLOAD_GUIDE.md
+
+Last Updated: December 19, 2025
+System: Cognitio Pro LMS v2.0

@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Registration - Atom ಶಾಲೆ AMS</title>
+       <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Century Gothic';
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #000;
+            color: #fff;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Video Background */
+        #bgVideo {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 0;
+        }
+
+        /* Animated Grid Overlay */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(90deg, rgba(0, 255, 157, 0.03) 1px, transparent 1px),
+                linear-gradient(rgba(0, 255, 157, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridMove 20s linear infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        /* Floating Particles */
+        .particle {
+            position: fixed;
+            width: 3px;
+            height: 3px;
+            background: #00ff9d;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+            box-shadow: 0 0 10px #00ff9d, 0 0 20px #00ff9d;
+            animation: particleFloat linear infinite;
+        }
+
+        @keyframes particleFloat {
+            0% {
+                transform: translateY(100vh) translateX(0) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) translateX(100px) scale(1);
+                opacity: 0;
+            }
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            padding: 40px 50px;
+            border: 3px solid #008037;
+            box-shadow: 0 20px 80px rgba(0, 0, 0, 0.2),
+                        0 0 20px rgba(0, 128, 55, 0.6),
+                        0 0 40px rgba(0, 128, 55, 0.4),
+                        inset 0 0 40px rgba(255, 255, 255, 0.1);
+            max-width: 550px;
+            width: 100%;
+            animation: slideUp 0.8s ease-out, borderGlow 3s ease-in-out infinite;
+            position: relative;
+            z-index: 10;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        @keyframes borderGlow {
+            0%, 100% {
+                border-color: #008037;
+                box-shadow: 
+                    0 20px 80px rgba(0, 0, 0, 0.2),
+                    0 0 20px rgba(0, 128, 55, 0.6),
+                    0 0 40px rgba(0, 128, 55, 0.4),
+                    inset 0 0 40px rgba(255, 255, 255, 0.1);
+            }
+            50% {
+                border-color: #00ff9d;
+                box-shadow: 
+                    0 20px 80px rgba(0, 0, 0, 0.2),
+                    0 0 30px rgba(0, 255, 157, 1),
+                    0 0 60px rgba(0, 255, 157, 0.8),
+                    inset 0 0 40px rgba(255, 255, 255, 0.1);
+            }
+        }
+
+        /* Custom Scrollbar */
+        .container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .container::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+        }
+
+        .container::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            font-family: 'Century Gothic', 'Futura', sans-serif;
+            color: #000000;
+            font-size: 32px;
+            font-weight: 900;
+            text-align: center;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .subtitle {
+            color: #333333;
+            text-align: center;
+            font-size: 14px;
+            margin-bottom: 30px;
+            font-weight: 500;
+        }
+
+        form {
+            position: relative;
+            z-index: 1;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            color: #000000;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-family: 'Century Gothic', 'Futura', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .required {
+            color: #ff4757;
+            margin-left: 3px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: block;
+        }
+
+        .input-wrapper svg {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 18px;
+            height: 18px;
+            fill: rgba(0, 0, 0, 0.5);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            width: 22px;
+            height: 22px;
+            fill: rgba(0, 0, 0, 0.6);
+            transition: fill 0.3s ease;
+            z-index: 10;
+            pointer-events: auto !important;
+        }
+
+        .toggle-password:hover {
+            fill: rgba(0, 0, 0, 0.9);
+        }
+
+        /* Add padding-right for password field */
+        input[type="password"],
+        input[type="text"]#passwordField {
+            padding-right: 45px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 15px 12px 45px;
+            background: rgba(255, 255, 255, 0.5);
+            border: 2px solid rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            color: #000000;
+            font-size: 14px;
+            font-family: 'Century Gothic', 'Futura', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        textarea {
+            padding: 12px 15px;
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        select {
+            cursor: pointer;
+            padding-left: 15px;
+        }
+
+        input::placeholder, textarea::placeholder {
+            color: rgba(0, 0, 0, 0.4);
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.7);
+            border-color: rgba(0, 0, 0, 0.5);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1), inset 0 0 10px rgba(255, 255, 255, 0.3);
+        }
+
+        /* No icon for these fields */
+        input[type="date"],
+        input[type="number"],
+        input[type="tel"],
+        select,
+        textarea {
+            padding-left: 15px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #00ff9d 0%, #00a8ff 100%);
+            color: #000;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 700;
+            font-family: 'Century Gothic', 'Futura', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5), 0 0 30px rgba(0, 255, 157, 0.3);
+            position: relative;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.5), 0 0 50px rgba(0, 255, 157, 0.6);
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 25px;
+            color: #333333;
+            font-size: 13px;
+        }
+
+        .login-link a {
+            color: #000000;
+            text-decoration: none;
+            font-weight: 600;
+            border-bottom: 2px solid rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .login-link a:hover {
+            border-bottom-color: #000000;
+            color: #555555;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 30px 25px;
+                max-height: 85vh;
+            }
+            h2 {
+                font-size: 26px;
+            }
+        }
+
+        /* Toast Notification */
+        #toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            min-width: 300px;
+            max-width: 400px;
+            background: rgba(10, 10, 30, 0.95);
+            backdrop-filter: blur(20px);
+            color: white;
+            padding: 18px 22px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.9);
+            border: 2px solid;
+            display: none;
+            z-index: 10000;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .toast-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        #toast-icon {
+            width: 22px;
+            height: 22px;
+            flex-shrink: 0;
+        }
+
+        #toast-message {
+            flex: 1;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(400px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(400px); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Video -->
+    <video id="bgVideo" autoplay loop muted playsinline preload="metadata">
+        <source src="{{ url_for('static', filename='images/Video_Conversion_to_GIF_Boomerang.mp4') }}" type="video/mp4">
+    </video>
+
+    <!-- Floating Particles -->
+    <script>
+        for(let i = 0; i < 15; i++) {
+            let particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+            particle.style.animationDelay = Math.random() * 5 + 's';
+            document.body.appendChild(particle);
+        }
+    </script>
+
+    <div class="container">
+        <h2>
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="#000000" style="vertical-align: middle; margin-right: 8px;">
+                <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5zm0 2.18l8 3.6v8.72c0 4.53-2.96 8.75-7 10.07-4.04-1.32-7-5.54-7-10.07V7.78l6-2.7V13h2V4.18z"/>
+            </svg>
+            ATOM Shaale
+        </h2>
+        <p class="subtitle">Create your student account</p>
+
+        <form action="{{ url_for('register') }}" method="POST">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+            {% for field in fields %}
+                {% if field[8] %}  {# is_active check #}
+                    <div class="form-group">
+                        <label class="form-label">
+                            {{ field[2] }}  {# field_label #}
+                            {% if field[5] %}  {# is_required #}
+                                <span class="required">*</span>
+                            {% endif %}
+                        </label>
+
+                        <div class="input-wrapper">
+                            {% if field[1] == 'student_name' %}
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                                </svg>
+                                <input type="text" name="name" placeholder="{{ field[2] }}" {% if field[5] %}required{% endif %}>
+
+                            {% elif field[1] == 'email' %}
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                    <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+                                </svg>
+                                <input type="email" name="email" placeholder="{{ field[2] }}" {% if field[5] %}required{% endif %}>
+
+                            {% elif field[1] == 'password' %}
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                    <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
+                                </svg>
+                                <input type="password" id="passwordField" name="password" placeholder="{{ field[2] }}" {% if field[5] %}required{% endif %}>
+                                <svg class="toggle-password" id="togglePassword" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                    <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+                                </svg>
+
+                            {% elif field[1] == 'course' %}
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                    <path d="M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82zM12 3L1 9l11 6 9-4.91V17h2V9L12 3z"/>
+                                </svg>
+                                <input type="text" name="course" placeholder="{{ field[2] }}" {% if field[5] %}required{% endif %}>
+
+                            {% elif field[3] == 'select' %}  {# field_type #}
+                                <select name="{{ field[1] }}" {% if field[5] %}required{% endif %}>
+                                    <option value="">Select {{ field[2] }}</option>
+                                    {% if field[4] %}  {# field_options #}
+                                        {% for option in field[4].split(',') %}
+                                            <option value="{{ option.strip() }}">{{ option.strip() }}</option>
+                                        {% endfor %}
+                                    {% endif %}
+                                </select>
+
+                            {% elif field[3] == 'textarea' %}
+                                <textarea name="{{ field[1] }}" placeholder="{{ field[2] }}" {% if field[5] %}required{% endif %}></textarea>
+
+                            {% elif field[3] == 'date' %}
+                                <input type="date" name="{{ field[1] }}" {% if field[5] %}required{% endif %}>
+
+                            {% elif field[3] == 'number' %}
+                                <input type="number" name="{{ field[1] }}" placeholder="{{ field[2] }}" {% if field[5] %}required{% endif %}>
+
+                            {% elif field[3] == 'tel' %}
+                                <input type="tel" name="{{ field[1] }}" placeholder="{{ field[2] }}" {% if field[5] %}required{% endif %}>
+
+                            {% else %}  {# Default: text #}
+                                <input type="{{ field[3] }}" name="{{ field[1] }}" placeholder="{{ field[2] }}" {% if field[5] %}required{% endif %}>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+
+            <button type="submit" class="btn">Register Now</button>
+        </form>
+
+        <div class="login-link">
+            Already have an account? <a href="/">Login Here</a>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast">
+        <div class="toast-content">
+            <svg id="toast-icon" fill="currentColor" viewBox="0 0 16 16"></svg>
+            <span id="toast-message"></span>
+        </div>
+    </div>
+
+    <script>
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toast-message');
+            const toastIcon = document.getElementById('toast-icon');
+            
+            toastMessage.textContent = message;
+            
+            if (type === 'success') {
+                toast.style.borderColor = '#00ff9d';
+                toast.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.9), 0 0 40px rgba(0, 255, 157, 0.5)';
+                toastIcon.innerHTML = '<path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>';
+                toastIcon.style.color = '#00ff9d';
+            } else if (type === 'danger' || type === 'error') {
+                toast.style.borderColor = '#ff4757';
+                toast.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.9), 0 0 40px rgba(255, 71, 87, 0.5)';
+                toastIcon.innerHTML = '<path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8 4a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 4zm.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/>';
+                toastIcon.style.color = '#ff4757';
+            } else if (type === 'info') {
+                toast.style.borderColor = '#00a8ff';
+                toast.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.9), 0 0 40px rgba(0, 168, 255, 0.5)';
+                toastIcon.innerHTML = '<path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>';
+                toastIcon.style.color = '#00a8ff';
+            } else if (type === 'warning') {
+                toast.style.borderColor = '#ffc312';
+                toast.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.9), 0 0 40px rgba(255, 195, 18, 0.5)';
+                toastIcon.innerHTML = '<path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>';
+                toastIcon.style.color = '#ffc312';
+            }
+            
+            toast.style.display = 'block';
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.5s ease-out';
+                setTimeout(() => {
+                    toast.style.display = 'none';
+                    toast.style.animation = 'slideIn 0.5s ease-out';
+                }, 500);
+            }, 4000);
+        }
+
+        // Check for flash messages
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                setTimeout(() => {
+                    showToast('{{ message }}', '{{ category }}');
+                }, 100);
+            {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        // Password toggle functionality
+        const togglePassword = document.getElementById('togglePassword');
+        const passwordField = document.getElementById('passwordField');
+        
+        if (togglePassword && passwordField) {
+            togglePassword.addEventListener('click', function() {
+                const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordField.setAttribute('type', type);
+                
+                // Toggle icon between eye and eye-slash
+                if (type === 'password') {
+                    this.innerHTML = '<path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>';
+                } else {
+                    this.innerHTML = '<path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/>';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

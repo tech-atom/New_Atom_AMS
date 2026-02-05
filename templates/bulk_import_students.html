@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bulk Import Students - ATOM SHAALE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='futuristic-theme.css') }}">
+    <style>
+        .instruction-box {
+            background: rgba(16, 20, 35, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 255, 157, 0.3);
+            border-left: 4px solid #00ff9d;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .instruction-box h3 {
+            color: #00ff9d;
+            margin-bottom: 15px;
+            font-size: 18px;
+            font-family: 'Century Gothic', 'Futura', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .instruction-box ol {
+            margin-left: 20px;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.8;
+        }
+
+        .instruction-box li {
+            margin-bottom: 8px;
+        }
+
+        .instruction-box strong {
+            color: #00a8ff;
+            font-weight: 600;
+        }
+
+        .sample-format {
+            background: rgba(10, 14, 27, 0.6);
+            border: 1px solid rgba(0, 255, 157, 0.3);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .sample-format h3 {
+            color: #00ff9d;
+            margin-bottom: 20px;
+            font-size: 18px;
+            font-family: 'Century Gothic', 'Futura', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .csv-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            margin-bottom: 20px;
+            background: rgba(16, 20, 35, 0.8);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .csv-table th {
+            background: linear-gradient(135deg, #00ff9d, #00a8ff);
+            color: #000;
+            padding: 12px;
+            text-align: left;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 11px;
+        }
+
+        .csv-table td {
+            padding: 12px;
+            border-bottom: 1px solid rgba(0, 255, 157, 0.1);
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .csv-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .csv-table tr:hover {
+            background: rgba(0, 255, 157, 0.05);
+        }
+
+        .download-sample {
+            background: linear-gradient(135deg, #00ff9d, #00a8ff);
+            color: #000;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 700;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0, 255, 157, 0.3);
+        }
+
+        .download-sample:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 255, 157, 0.5);
+        }
+
+        .upload-section {
+            background: rgba(16, 20, 35, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 255, 157, 0.3);
+            border-radius: 15px;
+            padding: 35px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+            max-width: 500px;
+            margin-bottom: 25px;
+        }
+
+        .file-input-wrapper input[type="file"] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .file-input-label {
+            display: block;
+            padding: 20px 30px;
+            background: rgba(10, 14, 27, 0.8);
+            border: 2px dashed rgba(0, 255, 157, 0.5);
+            border-radius: 12px;
+            cursor: pointer;
+            color: #00ff9d;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .file-input-label:hover {
+            background: rgba(0, 255, 157, 0.1);
+            border-color: #00ff9d;
+            box-shadow: 0 0 20px rgba(0, 255, 157, 0.3);
+        }
+
+        .file-name {
+            margin-top: 15px;
+            color: #00ff9d;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #00ff9d, #00a8ff);
+            color: #000;
+            padding: 16px 45px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 8px 20px rgba(0, 255, 157, 0.4);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(0, 255, 157, 0.5);
+        }
+
+        .submit-btn:disabled {
+            background: rgba(100, 100, 100, 0.3);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .settings-box {
+            background: rgba(0, 168, 255, 0.1);
+            border: 1px solid rgba(0, 168, 255, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 25px;
+            text-align: left;
+        }
+
+        .settings-box strong {
+            color: #00a8ff;
+            font-family: 'Century Gothic', 'Futura', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .settings-box label {
+            display: block;
+            margin-bottom: 12px;
+            color: rgba(255, 255, 255, 0.8);
+            cursor: pointer;
+            transition: all 0.3s;
+            padding: 8px 12px;
+            border-radius: 6px;
+        }
+
+        .settings-box label:hover {
+            background: rgba(0, 168, 255, 0.1);
+            color: #fff;
+        }
+
+        .settings-box input[type="radio"] {
+            margin-right: 10px;
+            accent-color: #00a8ff;
+            cursor: pointer;
+        }
+
+        .note {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-left: 4px solid #f59e0b;
+            padding: 20px;
+            margin-top: 30px;
+            border-radius: 10px;
+        }
+
+        .note strong {
+            color: #f59e0b;
+            font-family: 'Century Gothic', 'Futura', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .note ul {
+            margin-left: 20px;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.8;
+        }
+
+        .note li {
+            margin-bottom: 8px;
+        }
+
+        .alert-success {
+            background: rgba(0, 255, 157, 0.15);
+            border: 1px solid rgba(0, 255, 157, 0.4);
+            color: #00ff9d;
+        }
+
+        .alert-danger {
+            background: rgba(255, 68, 68, 0.15);
+            border: 1px solid rgba(255, 68, 68, 0.4);
+            color: #ff4444;
+        }
+
+        .alert-warning {
+            background: rgba(245, 158, 11, 0.15);
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            color: #f59e0b;
+        }
+
+        .alert-info {
+            background: rgba(0, 168, 255, 0.15);
+            border: 1px solid rgba(0, 168, 255, 0.4);
+            color: #00a8ff;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 28px;
+            }
+
+            .file-input-wrapper {
+                max-width: 100%;
+            }
+
+            .csv-table {
+                font-size: 11px;
+            }
+
+            .csv-table th,
+            .csv-table td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-overlay"></div>
+    
+    <script>
+        for(let i = 0; i < 15; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 15 + 's';
+            particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+            document.body.appendChild(particle);
+        }
+    </script>
+
+    <div class="container">
+        <div class="header">
+            <h1>
+                <svg width="40" height="40" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                    <path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z"/>
+                </svg>
+                Bulk Import Students
+            </h1>
+            <p>Upload a CSV file to register multiple students at once</p>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages[-1:] %}
+                    <div class="alert alert-{{ category }}" id="flashAlert">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="instruction-box">
+            <h3>
+                <svg width="22" height="22" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+                    <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
+                </svg>
+                How to Use
+            </h3>
+            <ol>
+                <li>Create an Excel/CSV file with student details</li>
+                <li>Make sure the file has 4 columns: <strong>name, email, course, password</strong></li>
+                <li>Save the file as CSV format (.csv)</li>
+                <li>Upload the file below</li>
+                <li>After import, download the credentials file to share with students</li>
+            </ol>
+        </div>
+
+        <div class="sample-format">
+            <h3>
+                <svg width="22" height="22" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm15 2h-4v3h4V4zm0 4h-4v3h4V8zm0 4h-4v3h3a1 1 0 0 0 1-1v-2zm-5 3v-3H6v3h4zm-5 0v-3H1v2a1 1 0 0 0 1 1h3zm-4-4h4V8H1v3zm0-4h4V4H1v3zm5-3v3h4V4H6zm4 4H6v3h4V8z"/>
+                </svg>
+                CSV Format Example
+            </h3>
+            <table class="csv-table">
+                <thead>
+                    <tr>
+                        <th>name</th>
+                        <th>email</th>
+                        <th>course</th>
+                        <th>password</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>John Doe</td>
+                        <td>john@test.com</td>
+                        <td>Computer Science</td>
+                        <td>john123</td>
+                    </tr>
+                    <tr>
+                        <td>Jane Smith</td>
+                        <td>jane@test.com</td>
+                        <td>Mathematics</td>
+                        <td>jane123</td>
+                    </tr>
+                    <tr>
+                        <td>Bob Wilson</td>
+                        <td>bob@test.com</td>
+                        <td>Physics</td>
+                        <td>bob123</td>
+                    </tr>
+                </tbody>
+            </table>
+            <a href="{{ url_for('download_sample_csv') }}" class="download-sample">
+                <svg width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                    <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
+                </svg>
+                Download Sample CSV
+            </a>
+        </div>
+
+        <form action="{{ url_for('process_bulk_import') }}" method="POST" enctype="multipart/form-data" id="uploadForm">
+            <div class="upload-section">
+                <div class="file-input-wrapper">
+                    <input type="file" name="csv_file" id="csvFile" accept=".csv" required onchange="displayFileName()">
+                    <label for="csvFile" class="file-input-label">
+                        <svg width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M9.828 3h3.982a2 2 0 0 1 1.992 2.181l-.637 7A2 2 0 0 1 13.174 14H2.825a2 2 0 0 1-1.991-1.819l-.637-7a1.99 1.99 0 0 1 .342-1.31L.5 3a2 2 0 0 1 2-2h3.672a2 2 0 0 1 1.414.586l.828.828A2 2 0 0 0 9.828 3zm-8.322.12C1.72 3.042 1.95 3 2.19 3h5.396l-.707-.707A1 1 0 0 0 6.172 2H2.5a1 1 0 0 0-1 .981l.006.139z"/>
+                        </svg>
+                        Choose CSV File
+                    </label>
+                </div>
+                <div id="fileName" class="file-name"></div>
+                
+                <div class="settings-box">
+                    <strong>
+                        <svg width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492zM5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0z"/>
+                            <path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52l-.094-.319z"/>
+                        </svg>
+                        Import Settings
+                    </strong>
+                    <label>
+                        <input type="radio" name="status" value="approved" checked> 
+                        Auto-approve all students (can login immediately)
+                    </label>
+                    <label>
+                        <input type="radio" name="status" value="pending"> 
+                        Set as pending (requires manual approval)
+                    </label>
+                </div>
+
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    <svg width="22" height="22" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M9.752 6.193c.599.6 1.73.437 2.528-.362.798-.799.96-1.932.362-2.531-.599-.6-1.73-.438-2.528.361-.798.8-.96 1.933-.362 2.532Z"/>
+                        <path d="M15.811 3.312c-.363 1.534-1.334 3.626-3.64 6.218l-.24 2.408a2.56 2.56 0 0 1-.732 1.526L8.817 15.85a.51.51 0 0 1-.867-.434l.27-1.899c.04-.28-.013-.593-.131-.956a9.42 9.42 0 0 0-.249-.657l-.082-.202c-.815-.197-1.578-.662-2.191-1.277-.614-.615-1.079-1.379-1.275-2.195l-.203-.083a9.556 9.556 0 0 0-.655-.248c-.363-.119-.675-.172-.955-.132l-1.896.27A.51.51 0 0 1 .15 7.17l2.382-2.386c.41-.41.947-.67 1.524-.734h.006l2.4-.238C9.005 1.55 11.087.582 12.623.208c.89-.217 1.59-.232 2.08-.188.244.023.435.06.57.093.067.017.12.033.16.045.184.06.279.13.351.295l.029.073a3.475 3.475 0 0 1 .157.721c.055.485.051 1.178-.159 2.065Zm-4.828 7.475.04-.04-.107 1.081a1.536 1.536 0 0 1-.44.913l-1.298 1.3.054-.38c.072-.506-.034-.993-.172-1.418a8.548 8.548 0 0 0-.164-.45c.738-.065 1.462-.38 2.087-1.006ZM5.205 5c-.625.626-.94 1.351-1.004 2.09a8.497 8.497 0 0 0-.45-.164c-.424-.138-.91-.244-1.416-.172l-.38.054 1.3-1.3c.245-.246.566-.401.91-.44l1.08-.107-.04.039Zm9.406-3.961c-.38-.034-.967-.027-1.746.163-1.558.38-3.917 1.496-6.937 4.521-.62.62-.799 1.34-.687 2.051.107.676.483 1.362 1.048 1.928.564.565 1.25.941 1.924 1.049.71.112 1.429-.067 2.048-.688 3.079-3.083 4.192-5.444 4.556-6.987.183-.771.18-1.345.138-1.713a2.835 2.835 0 0 0-.045-.283 3.078 3.078 0 0 0-.3-.041Z"/>
+                    </svg>
+                    Import Students
+                </button>
+            </div>
+        </form>
+
+        <div class="note">
+            <strong>
+                <svg width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                </svg>
+                Important Notes
+            </strong>
+            <ul>
+                <li>Passwords will be securely hashed before storing</li>
+                <li>Duplicate emails will be skipped automatically</li>
+                <li>After import, you'll receive a downloadable Excel file with all credentials</li>
+                <li>Maximum recommended: 1000 students per import</li>
+            </ul>
+        </div>
+
+        <div style="text-align: center;">
+            <a href="{{ url_for('admin_dashboard') }}" class="btn">
+                <svg width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+                </svg>
+                Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <script>
+        function displayFileName() {
+            const input = document.getElementById('csvFile');
+            const fileNameDiv = document.getElementById('fileName');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            if (input.files.length > 0) {
+                const fileName = input.files[0].name;
+                fileNameDiv.innerHTML = `<svg width="16" height="16" fill="#28a745" viewBox="0 0 16 16" style="vertical-align: middle; margin-right: 5px;"><path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/></svg>Selected: ${fileName}`;
+                submitBtn.disabled = false;
+            } else {
+                fileNameDiv.textContent = '';
+                submitBtn.disabled = true;
+            }
+        }
+
+        // Disable submit button initially
+        document.getElementById('submitBtn').disabled = true;
+
+        // Auto-hide flash messages after 5 seconds
+        setTimeout(function() {
+            const flashAlert = document.getElementById('flashAlert');
+            if (flashAlert) {
+                flashAlert.style.transition = 'opacity 0.5s';
+                flashAlert.style.opacity = '0';
+                setTimeout(() => flashAlert.remove(), 500);
+            }
+        }, 5000);
+    </script>
+</body>
+</html>

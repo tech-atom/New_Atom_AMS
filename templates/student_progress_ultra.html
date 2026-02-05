@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ student_name }} - Neural Performance Interface</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="{{ url_for('static', filename='chart.umd.js') }}"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: #000;
+            color: #fff;
+            overflow-x: hidden;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Hexagonal Grid Background */
+        .hex-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(135deg, #000 0%, #0a0e27 50%, #000 100%);
+            z-index: 0;
+        }
+
+        .hex-grid::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                repeating-linear-gradient(0deg, transparent, transparent 50px, rgba(0, 255, 106, 0.03) 50px, rgba(0, 255, 106, 0.03) 51px),
+                repeating-linear-gradient(60deg, transparent, transparent 50px, rgba(0, 255, 106, 0.03) 50px, rgba(0, 255, 106, 0.03) 51px),
+                repeating-linear-gradient(120deg, transparent, transparent 50px, rgba(0, 255, 106, 0.03) 50px, rgba(0, 255, 106, 0.03) 51px);
+            animation: hex-shift 20s linear infinite;
+        }
+
+        @keyframes hex-shift {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        /* Animated Neural Network Lines */
+        .neural-network {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .neural-line {
+            position: absolute;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 106, 0.4), transparent);
+            transform-origin: 0 0;
+            animation: pulse-line 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse-line {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 0.6; }
+        }
+
+        .neural-node {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #00ff6a;
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(0, 255, 106, 0.8);
+            animation: pulse-node 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-node {
+            0%, 100% { 
+                transform: scale(1);
+                box-shadow: 0 0 20px rgba(0, 255, 106, 0.8);
+            }
+            50% { 
+                transform: scale(1.5);
+                box-shadow: 0 0 40px rgba(0, 255, 106, 1);
+            }
+        }
+
+        /* Main Container */
+        .quantum-container {
+            position: relative;
+            z-index: 2;
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 40px 30px;
+        }
+
+        /* Holographic Header with Glitch Effect */
+        .holo-header {
+            position: relative;
+            padding: 50px;
+            margin-bottom: 50px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid rgba(0, 128, 55, 0.4);
+            border-radius: 30px;
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+        }
+
+        .holo-header::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, 
+                rgba(0, 128, 55, 0.4) 0%, 
+                rgba(0, 212, 255, 0.3) 50%, 
+                rgba(0, 128, 55, 0.4) 100%);
+            border-radius: 30px;
+            z-index: -1;
+            background-size: 400% 400%;
+            animation: gradient-border 4s ease infinite;
+        }
+
+        @keyframes gradient-border {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .holo-header::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(255, 255, 255, 0.1), 
+                transparent);
+            animation: scan-line 3s linear infinite;
+        }
+
+        @keyframes scan-line {
+            0% { left: -100%; }
+            100% { left: 200%; }
+        }
+
+        .glitch-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 64px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 6px;
+            position: relative;
+            display: inline-block;
+            color: #00ff6a;
+            text-shadow: 0 0 10px rgba(0, 128, 55, 0.5);
+            animation: glitch-effect 5s infinite;
+        }
+
+        @keyframes glitch-effect {
+            0%, 90%, 100% { transform: translate(0, 0); }
+            91% { transform: translate(-2px, 2px); }
+            92% { transform: translate(2px, -2px); }
+            93% { transform: translate(-2px, -2px); }
+            94% { transform: translate(2px, 2px); }
+        }
+
+        .subtitle-cyber {
+            font-size: 20px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.4);
+            margin-top: 15px;
+            font-weight: 600;
+        }
+
+        /* Quantum Stats Grid */
+        .quantum-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            margin-bottom: 60px;
+        }
+
+        .quantum-card {
+            position: relative;
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid rgba(0, 255, 106, 0.3);
+            border-radius: 25px;
+            padding: 40px;
+            perspective: 1000px;
+            transform-style: preserve-3d;
+            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            overflow: hidden;
+        }
+
+        .quantum-card::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 255, 106, 0.1) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.6s;
+        }
+
+        .quantum-card:hover::before {
+            opacity: 1;
+            animation: rotate-aura 3s linear infinite;
+        }
+
+        @keyframes rotate-aura {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        .quantum-card:hover {
+            transform: translateY(-20px) rotateX(15deg) rotateY(15deg) scale(1.05);
+            border-color: #00ff6a;
+            box-shadow: 
+                0 40px 80px rgba(0, 0, 0, 0.8),
+                0 0 100px rgba(0, 255, 106, 0.6),
+                inset 0 0 50px rgba(0, 255, 106, 0.1);
+        }
+
+        /* Circular Progress Ring */
+        .progress-ring-container {
+            position: relative;
+            width: 180px;
+            height: 180px;
+            margin: 0 auto 30px;
+        }
+
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+
+        .progress-ring-circle {
+            transition: stroke-dashoffset 2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .progress-ring-glow {
+            filter: drop-shadow(0 0 20px rgba(0, 255, 106, 0.8));
+        }
+
+        .ring-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .ring-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 42px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #00ff6a, #00d4ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+        }
+
+        .ring-label {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 8px;
+        }
+
+        /* Holographic Chart Container */
+        .holo-chart-wrapper {
+            position: relative;
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid rgba(0, 255, 106, 0.3);
+            border-radius: 30px;
+            padding: 50px;
+            margin-bottom: 60px;
+            backdrop-filter: blur(20px);
+            overflow: hidden;
+        }
+
+        .holo-chart-wrapper::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(45deg, transparent 48%, rgba(0, 255, 106, 0.05) 49%, rgba(0, 255, 106, 0.05) 51%, transparent 52%),
+                linear-gradient(-45deg, transparent 48%, rgba(0, 255, 106, 0.05) 49%, rgba(0, 255, 106, 0.05) 51%, transparent 52%);
+            background-size: 20px 20px;
+            pointer-events: none;
+        }
+
+        .chart-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .chart-icon {
+            width: 50px;
+            height: 50px;
+            padding: 12px;
+            background: linear-gradient(135deg, rgba(0, 255, 106, 0.2), rgba(0, 212, 255, 0.2));
+            border: 2px solid rgba(0, 255, 106, 0.4);
+            border-radius: 15px;
+            filter: drop-shadow(0 0 20px rgba(0, 255, 106, 0.6));
+        }
+
+        .chart-title-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 32px;
+            font-weight: 700;
+            color: #00ff6a;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        .chart-canvas-container {
+            position: relative;
+            height: 450px;
+            z-index: 1;
+        }
+
+        /* Subject Cards with Hexagon Shape */
+        .subject-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 40px;
+            margin-bottom: 60px;
+        }
+
+        .subject-hexagon {
+            position: relative;
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid rgba(0, 255, 106, 0.3);
+            border-radius: 20px;
+            padding: 35px;
+            transition: all 0.5s ease;
+            overflow: hidden;
+        }
+
+        .subject-hexagon::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(
+                from 0deg,
+                transparent,
+                rgba(0, 255, 106, 0.1),
+                transparent 30%
+            );
+            animation: rotate-cone 4s linear infinite;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+
+        @keyframes rotate-cone {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .subject-hexagon:hover::before {
+            opacity: 1;
+        }
+
+        .subject-hexagon:hover {
+            transform: translateY(-15px) scale(1.03);
+            border-color: #00ff6a;
+            box-shadow: 0 30px 60px rgba(0, 255, 106, 0.3);
+        }
+
+        .subject-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .subject-name-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            color: #00ff6a;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .subject-score-badge {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, rgba(0, 255, 106, 0.2), rgba(0, 212, 255, 0.2));
+            border: 2px solid rgba(0, 255, 106, 0.4);
+            border-radius: 20px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 24px;
+            font-weight: 900;
+            color: #00ff6a;
+        }
+
+        /* Wave Progress Bar */
+        .wave-progress {
+            position: relative;
+            width: 100%;
+            height: 30px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 15px;
+            overflow: hidden;
+            border: 1px solid rgba(0, 255, 106, 0.3);
+        }
+
+        .wave-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            background: linear-gradient(90deg, #00ff6a, #00d4ff, #00ff6a);
+            background-size: 200% 100%;
+            animation: wave-shift 3s linear infinite;
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(0, 255, 106, 0.6);
+        }
+
+        @keyframes wave-shift {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 200% 0%; }
+        }
+
+        .wave-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(255, 255, 255, 0.3) 50%, 
+                transparent 100%);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        /* AI Insights Panel */
+        .ai-panel {
+            position: relative;
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid rgba(0, 255, 106, 0.3);
+            border-radius: 30px;
+            padding: 50px;
+            margin-bottom: 60px;
+            overflow: hidden;
+        }
+
+        .ai-panel::before {
+            content: '';
+            position: absolute;
+            top: -100%;
+            left: -100%;
+            width: 300%;
+            height: 300%;
+            background: radial-gradient(circle, rgba(0, 255, 106, 0.1) 0%, transparent 50%);
+            animation: rotate-gradient 10s linear infinite;
+        }
+
+        @keyframes rotate-gradient {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .ai-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 40px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .ai-icon-container {
+            width: 60px;
+            height: 60px;
+            padding: 15px;
+            background: linear-gradient(135deg, rgba(0, 255, 106, 0.3), rgba(0, 212, 255, 0.3));
+            border: 2px solid rgba(0, 255, 106, 0.5);
+            border-radius: 50%;
+            animation: pulse-ai 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-ai {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 0 30px rgba(0, 255, 106, 0.6);
+            }
+            50% {
+                transform: scale(1.1);
+                box-shadow: 0 0 50px rgba(0, 255, 106, 1);
+            }
+        }
+
+        .ai-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 32px;
+            font-weight: 700;
+            color: #00ff6a;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        .insight-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+            padding: 25px;
+            background: rgba(0, 255, 106, 0.05);
+            border-left: 4px solid #00ff6a;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+            transition: all 0.3s ease;
+        }
+
+        .insight-item:hover {
+            background: rgba(0, 255, 106, 0.1);
+            transform: translateX(15px);
+            box-shadow: 0 10px 30px rgba(0, 255, 106, 0.3);
+        }
+
+        .insight-icon {
+            width: 30px;
+            height: 30px;
+            flex-shrink: 0;
+            filter: drop-shadow(0 0 10px rgba(0, 255, 106, 0.8));
+        }
+
+        .insight-text {
+            font-size: 18px;
+            line-height: 1.8;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        /* Quantum Return Button */
+        .quantum-return {
+            display: inline-flex;
+            align-items: center;
+            gap: 15px;
+            padding: 20px 40px;
+            background: linear-gradient(135deg, #00ff6a, #00d4ff);
+            border: 3px solid #00ff6a;
+            border-radius: 20px;
+            color: #000;
+            font-size: 20px;
+            font-weight: 900;
+            font-family: 'Orbitron', sans-serif;
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s ease;
+            box-shadow: 0 0 40px rgba(0, 255, 106, 0.6);
+        }
+
+        .quantum-return::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            transition: transform 0.5s ease;
+        }
+
+        .quantum-return:hover::before {
+            transform: translate(-50%, -50%) scale(3);
+        }
+
+        .quantum-return:hover {
+            transform: translateY(-8px) scale(1.1);
+            box-shadow: 0 0 80px rgba(0, 255, 106, 1);
+        }
+
+        /* No Data Hologram */
+        .no-data-hologram {
+            text-align: center;
+            padding: 120px 60px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 3px dashed rgba(0, 255, 106, 0.3);
+            border-radius: 30px;
+            margin-bottom: 60px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .no-data-hologram::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 106, 0.1), transparent);
+            animation: scan-hologram 3s linear infinite;
+        }
+
+        @keyframes scan-hologram {
+            0% { left: -100%; }
+            100% { left: 200%; }
+        }
+
+        .holo-icon {
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 40px;
+            opacity: 0.3;
+            filter: drop-shadow(0 0 40px rgba(0, 255, 106, 0.8));
+            animation: float-holo 4s ease-in-out infinite;
+        }
+
+        @keyframes float-holo {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
+
+        .holo-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 32px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 20px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        @media (max-width: 768px) {
+            .glitch-title {
+                font-size: 36px;
+            }
+            .quantum-stats {
+                grid-template-columns: 1fr;
+            }
+            .subject-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Hexagonal Grid Background -->
+    <div class="hex-grid"></div>
+
+    <!-- Neural Network Overlay -->
+    <div class="neural-network" id="neural-net"></div>
+
+    <!-- Main Container -->
+    <div class="quantum-container">
+        <!-- Holographic Header -->
+        <div class="holo-header">
+            <div class="glitch-title">{{ student_name }}</div>
+            <div class="subtitle-cyber">Student Performance Dashboard</div>
+        </div>
+
+        {% if total_exams > 0 %}
+            <!-- Quantum Stats -->
+            <div class="quantum-stats">
+                <div class="quantum-card">
+                    <div class="progress-ring-container">
+                        <svg class="progress-ring" width="180" height="180">
+                            <circle class="progress-ring-glow" cx="90" cy="90" r="75" stroke="rgba(0, 255, 106, 0.2)" stroke-width="8" fill="none" />
+                            <circle class="progress-ring-circle" cx="90" cy="90" r="75" stroke="#00ff6a" stroke-width="8" fill="none"
+                                stroke-dasharray="471" stroke-dashoffset="{{ 471 - (471 * total_exams / 100) }}" stroke-linecap="round" />
+                        </svg>
+                        <div class="ring-center">
+                            <div class="ring-value">{{ total_exams }}</div>
+                            <div class="ring-label">Exams</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="quantum-card">
+                    <div class="progress-ring-container">
+                        <svg class="progress-ring" width="180" height="180">
+                            <circle class="progress-ring-glow" cx="90" cy="90" r="75" stroke="rgba(0, 255, 106, 0.2)" stroke-width="8" fill="none" />
+                            <circle class="progress-ring-circle" cx="90" cy="90" r="75" stroke="#00ff6a" stroke-width="8" fill="none"
+                                stroke-dasharray="471" stroke-dashoffset="{{ 471 - (471 * average_score / 100) }}" stroke-linecap="round" />
+                        </svg>
+                        <div class="ring-center">
+                            <div class="ring-value">{{ "%.0f"|format(average_score) }}%</div>
+                            <div class="ring-label">Average</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="quantum-card">
+                    <div class="progress-ring-container">
+                        <svg class="progress-ring" width="180" height="180">
+                            <circle class="progress-ring-glow" cx="90" cy="90" r="75" stroke="rgba(0, 255, 106, 0.2)" stroke-width="8" fill="none" />
+                            <circle class="progress-ring-circle" cx="90" cy="90" r="75" stroke="#00ff6a" stroke-width="8" fill="none"
+                                stroke-dasharray="471" stroke-dashoffset="{{ 471 - (471 * top_score / 100) }}" stroke-linecap="round" />
+                        </svg>
+                        <div class="ring-center">
+                            <div class="ring-value">{{ top_score|int }}%</div>
+                            <div class="ring-label">Peak</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Performance Chart -->
+            <div class="holo-chart-wrapper">
+                <div class="chart-header">
+                    <svg class="chart-icon" fill="#00ff6a" viewBox="0 0 16 16">
+                        <path d="M0 0h1v15h15v1H0V0Zm10 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0V4.9l-3.613 4.417a.5.5 0 0 1-.74.037L7.06 6.767l-3.656 5.027a.5.5 0 0 1-.808-.588l4-5.5a.5.5 0 0 1 .758-.06l2.609 2.61L13.445 4H10.5a.5.5 0 0 1-.5-.5Z"/>
+                    </svg>
+                    <div class="chart-title-text">Performance Spectrum</div>
+                </div>
+                <div class="chart-canvas-container">
+                    <canvas id="performanceChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Subject Mastery -->
+            <div class="holo-chart-wrapper">
+                <div class="chart-header">
+                    <svg class="chart-icon" fill="#00ff6a" viewBox="0 0 16 16">
+                        <path d="M1 2.828c.885-.37 2.154-.769 3.388-.893 1.33-.134 2.458.063 3.112.752v9.746c-.935-.53-2.12-.603-3.213-.493-1.18.12-2.37.461-3.287.811V2.828zm7.5-.141c.654-.689 1.782-.886 3.112-.752 1.234.124 2.503.523 3.388.893v9.923c-.918-.35-2.107-.692-3.287-.81-1.094-.111-2.278-.039-3.213.492V2.687zM8 1.783C7.015.936 5.587.81 4.287.94c-1.514.153-3.042.672-3.994 1.105A.5.5 0 0 0 0 2.5v11a.5.5 0 0 0 .707.455c.882-.4 2.303-.881 3.68-1.02 1.409-.142 2.59.087 3.223.877a.5.5 0 0 0 .78 0c.633-.79 1.814-1.019 3.222-.877 1.378.139 2.8.62 3.681 1.02A.5.5 0 0 0 16 13.5v-11a.5.5 0 0 0-.293-.455c-.952-.433-2.48-.952-3.994-1.105C10.413.809 8.985.936 8 1.783z"/>
+                    </svg>
+                    <div class="chart-title-text">Subject Mastery</div>
+                </div>
+                <div class="subject-grid">
+                    {% for subject in subject_wise %}
+                        <div class="subject-hexagon">
+                            <div class="subject-header">
+                                <div class="subject-name-text">{{ subject.subject }}</div>
+                                <div class="subject-score-badge">{{ "%.0f"|format(subject.avg_score) }}%</div>
+                            </div>
+                            <div class="wave-progress">
+                                <div class="wave-fill" style="width: {{ subject.avg_score }}%"></div>
+                            </div>
+                            <div style="text-align: right; margin-top: 15px; color: rgba(255, 255, 255, 0.6); font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">
+                                {{ subject.exam_count }} Exam(s)
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- AI Insights -->
+            <div class="ai-panel">
+                <div class="ai-header">
+                    <div class="ai-icon-container">
+                        <svg fill="#00ff6a" viewBox="0 0 16 16">
+                            <path d="M5 0a.5.5 0 0 1 .5.5V2h1V.5a.5.5 0 0 1 1 0V2h1V.5a.5.5 0 0 1 1 0V2h1V.5a.5.5 0 0 1 1 0V2A2.5 2.5 0 0 1 14 4.5h1.5a.5.5 0 0 1 0 1H14v1h1.5a.5.5 0 0 1 0 1H14v1h1.5a.5.5 0 0 1 0 1H14v1h1.5a.5.5 0 0 1 0 1H14a2.5 2.5 0 0 1-2.5 2.5v1.5a.5.5 0 0 1-1 0V14h-1v1.5a.5.5 0 0 1-1 0V14h-1v1.5a.5.5 0 0 1-1 0V14h-1v1.5a.5.5 0 0 1-1 0V14A2.5 2.5 0 0 1 2 11.5H.5a.5.5 0 0 1 0-1H2v-1H.5a.5.5 0 0 1 0-1H2v-1H.5a.5.5 0 0 1 0-1H2v-1H.5a.5.5 0 0 1 0-1H2A2.5 2.5 0 0 1 4.5 2V.5A.5.5 0 0 1 5 0zm-.5 3A1.5 1.5 0 0 0 3 4.5v7A1.5 1.5 0 0 0 4.5 13h7a1.5 1.5 0 0 0 1.5-1.5v-7A1.5 1.5 0 0 0 11.5 3h-7zM5 6.5A1.5 1.5 0 0 1 6.5 5h3A1.5 1.5 0 0 1 11 6.5v3A1.5 1.5 0 0 1 9.5 11h-3A1.5 1.5 0 0 1 5 9.5v-3zM6.5 6a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3z"/>
+                        </svg>
+                    </div>
+                    <div class="ai-title">Quantum AI Analysis</div>
+                </div>
+                {% for rec in recommendations %}
+                    <div class="insight-item">
+                        <svg class="insight-icon" fill="#00ff6a" viewBox="0 0 16 16">
+                            <path d="M5.52.359A.5.5 0 0 1 6 0h4a.5.5 0 0 1 .474.658L8.694 6H12.5a.5.5 0 0 1 .395.807l-7 9a.5.5 0 0 1-.873-.454L6.823 9.5H3.5a.5.5 0 0 1-.48-.641l2.5-8.5z"/>
+                        </svg>
+                        <div class="insight-text">{{ rec }}</div>
+                    </div>
+                {% endfor %}
+            </div>
+
+        {% else %}
+            <!-- No Data State -->
+            <div class="no-data-hologram">
+                <svg class="holo-icon" fill="rgba(255, 255, 255, 0.3)" viewBox="0 0 16 16">
+                    <path d="M4.5 6a.5.5 0 0 0-.5.5v5a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-5a.5.5 0 0 0-.5-.5h-1zm3 0a.5.5 0 0 0-.5.5v5a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-5a.5.5 0 0 0-.5-.5h-1zm3 0a.5.5 0 0 0-.5.5v5a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-5a.5.5 0 0 0-.5-.5h-1z"/>
+                    <path d="M2 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2H2zm13 2v10a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1z"/>
+                </svg>
+                <div class="holo-text">Awaiting Neural Data</div>
+                <div style="color: rgba(255, 255, 255, 0.4); font-size: 18px;">Complete your first quantum assessment to initialize performance analytics.</div>
+            </div>
+        {% endif %}
+
+        <!-- Return Button -->
+        <a href="{{ url_for('student_dashboard') }}" class="quantum-return">
+            <svg width="28" height="28" fill="currentColor" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+            </svg>
+            Return to Command Center
+        </a>
+    </div>
+
+    <script nonce="{{ csp_nonce() }}">
+        // Generate Neural Network
+        const neuralNet = document.getElementById('neural-net');
+        const nodes = [];
+        
+        // Create nodes
+        for (let i = 0; i < 15; i++) {
+            const node = document.createElement('div');
+            node.className = 'neural-node';
+            const x = Math.random() * window.innerWidth;
+            const y = Math.random() * window.innerHeight;
+            node.style.left = x + 'px';
+            node.style.top = y + 'px';
+            node.style.animationDelay = Math.random() * 2 + 's';
+            neuralNet.appendChild(node);
+            nodes.push({ x, y, element: node });
+        }
+        
+        // Create connecting lines
+        for (let i = 0; i < nodes.length; i++) {
+            for (let j = i + 1; j < nodes.length; j++) {
+                const distance = Math.sqrt(
+                    Math.pow(nodes[i].x - nodes[j].x, 2) + 
+                    Math.pow(nodes[i].y - nodes[j].y, 2)
+                );
+                
+                if (distance < 300) {
+                    const line = document.createElement('div');
+                    line.className = 'neural-line';
+                    const angle = Math.atan2(nodes[j].y - nodes[i].y, nodes[j].x - nodes[i].x);
+                    line.style.width = distance + 'px';
+                    line.style.left = nodes[i].x + 'px';
+                    line.style.top = nodes[i].y + 'px';
+                    line.style.transform = `rotate(${angle}rad)`;
+                    line.style.animationDelay = Math.random() * 3 + 's';
+                    neuralNet.appendChild(line);
+                }
+            }
+        }
+
+        {% if total_exams > 0 %}
+        // Performance Chart
+        const examData = {{ exam_data | tojson }};
+        
+        const ctx = document.getElementById('performanceChart').getContext('2d');
+        const gradient = ctx.createLinearGradient(0, 0, 0, 450);
+        gradient.addColorStop(0, 'rgba(0, 255, 106, 0.6)');
+        gradient.addColorStop(0.5, 'rgba(0, 212, 255, 0.3)');
+        gradient.addColorStop(1, 'rgba(0, 255, 106, 0.1)');
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: examData.map(e => e.date),
+                datasets: [{
+                    label: 'Performance',
+                    data: examData.map(e => e.percentage),
+                    borderColor: '#00ff6a',
+                    backgroundColor: gradient,
+                    borderWidth: 4,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 8,
+                    pointHoverRadius: 12,
+                    pointBackgroundColor: '#00ff6a',
+                    pointBorderColor: '#000',
+                    pointBorderWidth: 3,
+                    pointHoverBackgroundColor: '#00d4ff',
+                    pointHoverBorderColor: '#00ff6a',
+                    pointHoverBorderWidth: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.95)',
+                        titleColor: '#00ff6a',
+                        bodyColor: '#fff',
+                        borderColor: '#00ff6a',
+                        borderWidth: 3,
+                        padding: 20,
+                        displayColors: false,
+                        titleFont: { size: 18, weight: 'bold', family: 'Orbitron' },
+                        bodyFont: { size: 16, family: 'Rajdhani' },
+                        callbacks: {
+                            label: (context) => 'Score: ' + context.parsed.y.toFixed(1) + '%'
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        grid: {
+                            color: 'rgba(0, 255, 106, 0.15)',
+                            borderColor: 'rgba(0, 255, 106, 0.4)',
+                            borderWidth: 2
+                        },
+                        ticks: {
+                            color: '#00ff6a',
+                            font: { size: 16, weight: '700', family: 'Orbitron' },
+                            callback: (value) => value + '%'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: 'rgba(0, 255, 106, 0.15)',
+                            borderColor: 'rgba(0, 255, 106, 0.4)',
+                            borderWidth: 2
+                        },
+                        ticks: {
+                            color: 'rgba(255, 255, 255, 0.7)',
+                            font: { size: 14, weight: '600', family: 'Rajdhani' }
+                        }
+                    }
+                },
+                interaction: { mode: 'index', intersect: false },
+                animation: { duration: 2500, easing: 'easeInOutQuart' }
+            }
+        });
+        {% endif %}
+    </script>
+</body>
+</html>

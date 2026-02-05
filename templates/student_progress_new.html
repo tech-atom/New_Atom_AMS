@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ student_name }} - Performance Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="{{ url_for('static', filename='chart.umd.js') }}"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: #000;
+            color: #fff;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        .cyber-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0a0e27 100%);
+            z-index: 0;
+        }
+
+        .particles-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: rgba(0, 255, 106, 0.6);
+            border-radius: 50%;
+            animation: float-up 20s infinite;
+        }
+
+        @keyframes float-up {
+            0% {
+                transform: translateY(100vh) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) scale(1);
+                opacity: 0;
+            }
+        }
+
+        .main-container {
+            position: relative;
+            z-index: 2;
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+
+        /* Header Section */
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: linear-gradient(135deg, rgba(0, 128, 55, 0.1), rgba(0, 255, 106, 0.05));
+            border: 2px solid rgba(0, 255, 106, 0.3);
+            border-radius: 20px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 0 40px rgba(0, 255, 106, 0.2);
+            animation: pulse-border 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse-border {
+            0%, 100% {
+                box-shadow: 0 0 40px rgba(0, 255, 106, 0.2);
+            }
+            50% {
+                box-shadow: 0 0 60px rgba(0, 255, 106, 0.4);
+            }
+        }
+
+        .header-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 42px;
+            font-weight: 900;
+            background: linear-gradient(90deg, #00ff6a, #00d4ff, #00ff6a);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradient-flow 3s linear infinite;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        @keyframes gradient-flow {
+            0% { background-position: 0% center; }
+            100% { background-position: 200% center; }
+        }
+
+        .course-badge {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(0, 255, 106, 0.2));
+            border: 2px solid rgba(0, 255, 106, 0.4);
+            border-radius: 25px;
+            font-size: 18px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            box-shadow: 0 0 20px rgba(0, 255, 106, 0.3);
+        }
+
+        /* Stats Dashboard - 3D Cards */
+        .stats-dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+            perspective: 1000px;
+        }
+
+        .stat-card-3d {
+            position: relative;
+            background: linear-gradient(135deg, rgba(0, 20, 40, 0.9), rgba(0, 40, 80, 0.7));
+            border: 2px solid rgba(0, 255, 106, 0.3);
+            border-radius: 20px;
+            padding: 30px;
+            transform-style: preserve-3d;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            overflow: hidden;
+        }
+
+        .stat-card-3d::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 255, 106, 0.1), transparent 70%);
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+
+        .stat-card-3d:hover::before {
+            opacity: 1;
+            animation: rotate-gradient 2s linear infinite;
+        }
+
+        @keyframes rotate-gradient {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .stat-card-3d:hover {
+            transform: translateY(-15px) rotateX(10deg) rotateY(10deg) scale(1.05);
+            border-color: #00ff6a;
+            box-shadow: 
+                0 30px 60px rgba(0, 0, 0, 0.6),
+                0 0 80px rgba(0, 255, 106, 0.5);
+        }
+
+        .stat-icon-3d {
+            width: 70px;
+            height: 70px;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 0 15px rgba(0, 255, 106, 0.8));
+            animation: float-icon 3s ease-in-out infinite;
+        }
+
+        @keyframes float-icon {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .stat-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 56px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #00ff6a, #00d4ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            text-shadow: 0 0 30px rgba(0, 255, 106, 0.6);
+        }
+
+        .stat-label {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.7);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 600;
+        }
+
+        /* 3D Chart Container */
+        .chart-section {
+            margin-bottom: 50px;
+        }
+
+        .chart-container-3d {
+            position: relative;
+            background: linear-gradient(135deg, rgba(0, 20, 40, 0.9), rgba(0, 40, 80, 0.7));
+            border: 2px solid rgba(0, 255, 106, 0.3);
+            border-radius: 25px;
+            padding: 40px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            transform-style: preserve-3d;
+            transition: all 0.4s ease;
+        }
+
+        .chart-container-3d:hover {
+            transform: translateZ(20px);
+            box-shadow: 0 30px 80px rgba(0, 255, 106, 0.3);
+        }
+
+        .chart-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: #00ff6a;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .chart-title::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 80%;
+            background: linear-gradient(180deg, #00ff6a, #00d4ff);
+            border-radius: 3px;
+            box-shadow: 0 0 20px rgba(0, 255, 106, 0.6);
+        }
+
+        .chart-canvas {
+            position: relative;
+            height: 400px;
+            z-index: 1;
+        }
+
+        /* Subject Performance Grid */
+        .performance-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        .subject-card {
+            position: relative;
+            background: linear-gradient(135deg, rgba(0, 20, 40, 0.9), rgba(0, 40, 80, 0.7));
+            border: 2px solid rgba(0, 255, 106, 0.3);
+            border-radius: 20px;
+            padding: 30px;
+            transition: all 0.4s ease;
+            overflow: hidden;
+        }
+
+        .subject-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 106, 0.2), transparent);
+            transition: left 0.6s;
+        }
+
+        .subject-card:hover::before {
+            left: 100%;
+        }
+
+        .subject-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            border-color: #00ff6a;
+            box-shadow: 0 20px 50px rgba(0, 255, 106, 0.3);
+        }
+
+        .subject-name {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 22px;
+            font-weight: 700;
+            color: #00ff6a;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        .score-display {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .score-number {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 48px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #00ff6a, #00d4ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .exam-count {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Progress Bar with 3D Effect */
+        .progress-bar-3d {
+            position: relative;
+            width: 100%;
+            height: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.5);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff6a, #00d4ff);
+            border-radius: 10px;
+            transition: width 2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 20px rgba(0, 255, 106, 0.6);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-fill::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shine 2s infinite;
+        }
+
+        @keyframes shine {
+            0% { left: -100%; }
+            100% { left: 200%; }
+        }
+
+        /* Recommendations Section */
+        .recommendations-section {
+            background: linear-gradient(135deg, rgba(0, 20, 40, 0.9), rgba(0, 40, 80, 0.7));
+            border: 2px solid rgba(0, 255, 106, 0.3);
+            border-radius: 25px;
+            padding: 40px;
+            margin-bottom: 40px;
+        }
+
+        .recommendations-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: #00ff6a;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .recommendation-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            padding: 20px;
+            background: rgba(0, 255, 106, 0.05);
+            border-left: 4px solid #00ff6a;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .recommendation-item:hover {
+            background: rgba(0, 255, 106, 0.1);
+            transform: translateX(10px);
+            box-shadow: 0 0 20px rgba(0, 255, 106, 0.2);
+        }
+
+        .recommendation-icon {
+            width: 24px;
+            height: 24px;
+            flex-shrink: 0;
+            filter: drop-shadow(0 0 5px rgba(0, 255, 106, 0.6));
+        }
+
+        /* Back Button */
+        .back-btn-futuristic {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 32px;
+            background: linear-gradient(135deg, #00ff6a, #00d4ff);
+            border: none;
+            border-radius: 15px;
+            color: #000;
+            font-size: 18px;
+            font-weight: 700;
+            font-family: 'Orbitron', sans-serif;
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 30px rgba(0, 255, 106, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .back-btn-futuristic::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            transition: transform 0.5s ease;
+        }
+
+        .back-btn-futuristic:hover::before {
+            transform: translate(-50%, -50%) scale(2);
+        }
+
+        .back-btn-futuristic:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 0 50px rgba(0, 255, 106, 0.8);
+        }
+
+        /* No Data State */
+        .no-data-container {
+            text-align: center;
+            padding: 100px 40px;
+            background: linear-gradient(135deg, rgba(0, 20, 40, 0.9), rgba(0, 40, 80, 0.7));
+            border: 2px dashed rgba(0, 255, 106, 0.3);
+            border-radius: 25px;
+            margin-bottom: 40px;
+        }
+
+        .no-data-icon {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 30px;
+            opacity: 0.3;
+            filter: drop-shadow(0 0 30px rgba(0, 255, 106, 0.5));
+            animation: pulse-icon 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-icon {
+            0%, 100% { transform: scale(1); opacity: 0.3; }
+            50% { transform: scale(1.1); opacity: 0.5; }
+        }
+
+        .no-data-text {
+            font-size: 28px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .header-title {
+                font-size: 28px;
+            }
+            .stats-dashboard {
+                grid-template-columns: 1fr;
+            }
+            .performance-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Cyber Background -->
+    <div class="cyber-bg"></div>
+
+    <!-- Particles -->
+    <div class="particles-container" id="particles"></div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Header -->
+        <div class="header-section">
+            <div>
+                <div class="header-title">{{ student_name }}</div>
+                <div style="color: rgba(255, 255, 255, 0.7); font-size: 18px; margin-top: 10px; letter-spacing: 2px; text-transform: uppercase;">Performance Analytics Dashboard</div>
+            </div>
+            <div class="course-badge">
+                <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16" style="margin-right: 8px;">
+                    <path d="M1 2.828c.885-.37 2.154-.769 3.388-.893 1.33-.134 2.458.063 3.112.752v9.746c-.935-.53-2.12-.603-3.213-.493-1.18.12-2.37.461-3.287.811V2.828zm7.5-.141c.654-.689 1.782-.886 3.112-.752 1.234.124 2.503.523 3.388.893v9.923c-.918-.35-2.107-.692-3.287-.81-1.094-.111-2.278-.039-3.213.492V2.687zM8 1.783C7.015.936 5.587.81 4.287.94c-1.514.153-3.042.672-3.994 1.105A.5.5 0 0 0 0 2.5v11a.5.5 0 0 0 .707.455c.882-.4 2.303-.881 3.68-1.02 1.409-.142 2.59.087 3.223.877a.5.5 0 0 0 .78 0c.633-.79 1.814-1.019 3.222-.877 1.378.139 2.8.62 3.681 1.02A.5.5 0 0 0 16 13.5v-11a.5.5 0 0 0-.293-.455c-.952-.433-2.48-.952-3.994-1.105C10.413.809 8.985.936 8 1.783z"/>
+                </svg>
+                {{ course if course else 'All Courses' }}
+            </div>
+        </div>
+
+        {% if total_exams > 0 %}
+            <!-- Stats Dashboard -->
+            <div class="stats-dashboard">
+                <div class="stat-card-3d">
+                    <svg class="stat-icon-3d" fill="#00a8ff" viewBox="0 0 16 16">
+                        <path d="M5.5 7a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1h-5zM5 9.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm0 2a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5z"/>
+                        <path d="M9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.5L9.5 0zm0 1v2A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5z"/>
+                    </svg>
+                    <div class="stat-value">{{ total_exams }}</div>
+                    <div class="stat-label">Total Exams</div>
+                </div>
+
+                <div class="stat-card-3d">
+                    <svg class="stat-icon-3d" fill="#00ff6a" viewBox="0 0 16 16">
+                        <path d="M4.5 6a.5.5 0 0 0-.5.5v5a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-5a.5.5 0 0 0-.5-.5h-1zm3 0a.5.5 0 0 0-.5.5v5a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-5a.5.5 0 0 0-.5-.5h-1zm3 0a.5.5 0 0 0-.5.5v5a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-5a.5.5 0 0 0-.5-.5h-1z"/>
+                        <path d="M2 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2H2zm13 2v10a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1z"/>
+                    </svg>
+                    <div class="stat-value">{{ "%.1f"|format(average_score) }}%</div>
+                    <div class="stat-label">Average Score</div>
+                </div>
+
+                <div class="stat-card-3d">
+                    <svg class="stat-icon-3d" fill="#ffc107" viewBox="0 0 16 16">
+                        <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"/>
+                    </svg>
+                    <div class="stat-value">{{ top_score if top_score else 0 }}%</div>
+                    <div class="stat-label">Best Score</div>
+                </div>
+            </div>
+
+            <!-- Score Trend Chart -->
+            <div class="chart-section">
+                <div class="chart-container-3d">
+                    <div class="chart-title">
+                        <svg width="24" height="24" fill="currentColor" viewBox="0 0 16 16" style="vertical-align: middle; margin-right: 10px;">
+                            <path d="M7.657 6.247c.11-.33.576-.33.686 0l.645 1.937a2.89 2.89 0 0 0 1.829 1.828l1.936.645c.33.11.33.576 0 .686l-1.937.645a2.89 2.89 0 0 0-1.828 1.829l-.645 1.936a.361.361 0 0 1-.686 0l-.645-1.937a2.89 2.89 0 0 0-1.828-1.828l-1.937-.645a.361.361 0 0 1 0-.686l1.937-.645a2.89 2.89 0 0 0 1.828-1.828l.645-1.937zM3.794 1.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387A1.734 1.734 0 0 0 4.593 5.69l-.387 1.162a.217.217 0 0 1-.412 0L3.407 5.69A1.734 1.734 0 0 0 2.31 4.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387A1.734 1.734 0 0 0 3.407 2.31l.387-1.162zM10.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.156 1.156 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.156 1.156 0 0 0-.732-.732L9.1 2.137a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732L10.863.1z"/>
+                        </svg>
+                        Performance Trajectory
+                    </div>
+                    <div class="chart-canvas">
+                        <canvas id="scoreTrendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Subject Performance -->
+            <div class="chart-section">
+                <h2 class="chart-title" style="margin-bottom: 30px;">
+                    <svg width="24" height="24" fill="currentColor" viewBox="0 0 16 16" style="vertical-align: middle; margin-right: 10px;">
+                        <path d="M4.5 6a.5.5 0 0 0-.5.5v5a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-5a.5.5 0 0 0-.5-.5h-1zm3 0a.5.5 0 0 0-.5.5v5a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-5a.5.5 0 0 0-.5-.5h-1zm3 0a.5.5 0 0 0-.5.5v5a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-5a.5.5 0 0 0-.5-.5h-1z"/>
+                        <path d="M2 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2H2zm13 2v10a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1z"/>
+                    </svg>
+                    Subject Mastery
+                </h2>
+                <div class="performance-grid">
+                    {% for subject in subject_wise %}
+                        <div class="subject-card">
+                            <div class="subject-name">{{ subject.subject }}</div>
+                            <div class="score-display">
+                                <div class="score-number">{{ "%.1f"|format(subject.avg_score) }}%</div>
+                                <div class="exam-count">{{ subject.exam_count }} exam(s)</div>
+                            </div>
+                            <div class="progress-bar-3d">
+                                <div class="progress-fill" style="width: {{ subject.avg_score }}%"></div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Recommendations -->
+            <div class="recommendations-section">
+                <div class="recommendations-title">
+                    <svg width="28" height="28" fill="currentColor" viewBox="0 0 16 16" style="vertical-align: middle; margin-right: 12px;">
+                        <path d="M5.52.359A.5.5 0 0 1 6 0h4a.5.5 0 0 1 .474.658L8.694 6H12.5a.5.5 0 0 1 .395.807l-7 9a.5.5 0 0 1-.873-.454L6.823 9.5H3.5a.5.5 0 0 1-.48-.641l2.5-8.5z"/>
+                    </svg>
+                    AI-Powered Insights
+                </div>
+                {% for rec in recommendations %}
+                    <div class="recommendation-item">
+                        <svg class="recommendation-icon" fill="#00ff6a" viewBox="0 0 16 16">
+                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                            <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+                        </svg>
+                        <div style="color: rgba(255, 255, 255, 0.9); font-size: 16px; line-height: 1.6;">{{ rec }}</div>
+                    </div>
+                {% endfor %}
+            </div>
+
+        {% else %}
+            <!-- No Data State -->
+            <div class="no-data-container">
+                <svg class="no-data-icon" fill="rgba(255, 255, 255, 0.3)" viewBox="0 0 16 16">
+                    <path d="M4.5 6a.5.5 0 0 0-.5.5v5a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-5a.5.5 0 0 0-.5-.5h-1zm3 0a.5.5 0 0 0-.5.5v5a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-5a.5.5 0 0 0-.5-.5h-1zm3 0a.5.5 0 0 0-.5.5v5a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-5a.5.5 0 0 0-.5-.5h-1z"/>
+                    <path d="M2 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2H2zm13 2v10a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1z"/>
+                </svg>
+                <div class="no-data-text">No Performance Data Available</div>
+                <div style="color: rgba(255, 255, 255, 0.4); font-size: 16px;">Complete your first exam to unlock performance analytics and AI-powered insights.</div>
+            </div>
+        {% endif %}
+
+        <!-- Back Button -->
+        <a href="{{ url_for('student_dashboard') }}" class="back-btn-futuristic">
+            <svg width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+            </svg>
+            Return to Command Center
+        </a>
+    </div>
+
+    <script nonce="{{ csp_nonce() }}">
+        // Generate particles
+        const particlesContainer = document.getElementById('particles');
+        for (let i = 0; i < 40; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 20 + 's';
+            particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+            particlesContainer.appendChild(particle);
+        }
+
+        {% if total_exams > 0 %}
+        // Score Trend Chart with 3D effect
+        const examData = {{ exam_data | tojson }};
+        
+        const ctx = document.getElementById('scoreTrendChart').getContext('2d');
+        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, 'rgba(0, 255, 106, 0.4)');
+        gradient.addColorStop(1, 'rgba(0, 212, 255, 0.1)');
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: examData.map(e => e.date),
+                datasets: [{
+                    label: 'Score Performance',
+                    data: examData.map(e => e.percentage),
+                    borderColor: '#00ff6a',
+                    backgroundColor: gradient,
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 6,
+                    pointHoverRadius: 10,
+                    pointBackgroundColor: '#00ff6a',
+                    pointBorderColor: '#000',
+                    pointBorderWidth: 2,
+                    pointHoverBackgroundColor: '#00d4ff',
+                    pointHoverBorderColor: '#00ff6a',
+                    pointHoverBorderWidth: 3,
+                    shadowOffsetX: 0,
+                    shadowOffsetY: 10,
+                    shadowBlur: 20,
+                    shadowColor: 'rgba(0, 255, 106, 0.5)'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 20, 40, 0.95)',
+                        titleColor: '#00ff6a',
+                        bodyColor: '#fff',
+                        borderColor: '#00ff6a',
+                        borderWidth: 2,
+                        padding: 15,
+                        displayColors: false,
+                        titleFont: {
+                            size: 16,
+                            weight: 'bold'
+                        },
+                        bodyFont: {
+                            size: 14
+                        },
+                        callbacks: {
+                            label: function(context) {
+                                return 'Score: ' + context.parsed.y.toFixed(2) + '%';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        grid: {
+                            color: 'rgba(0, 255, 106, 0.1)',
+                            borderColor: 'rgba(0, 255, 106, 0.3)',
+                            borderWidth: 2
+                        },
+                        ticks: {
+                            color: '#00ff6a',
+                            font: {
+                                size: 14,
+                                weight: '600'
+                            },
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: 'rgba(0, 255, 106, 0.1)',
+                            borderColor: 'rgba(0, 255, 106, 0.3)',
+                            borderWidth: 2
+                        },
+                        ticks: {
+                            color: 'rgba(255, 255, 255, 0.7)',
+                            font: {
+                                size: 12,
+                                weight: '500'
+                            }
+                        }
+                    }
+                },
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                },
+                animation: {
+                    duration: 2000,
+                    easing: 'easeInOutQuart'
+                }
+            }
+        });
+        {% endif %}
+    </script>
+</body>
+</html>

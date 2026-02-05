@@ -1,0 +1,17 @@
+Question Type,Question Text,Option A,Option B,Option C,Option D,Correct Answer,Explanation/Instructions
+mcq,What is the capital of France?,London,Paris,Berlin,Madrid,B,Paris is the capital and largest city of France
+mcq,Which programming language is known as the 'language of the web'?,Python,Java,JavaScript,C++,C,JavaScript runs in web browsers and is essential for web development
+true_false,The Earth is flat.,True,False,,,False,The Earth is an oblate spheroid (slightly flattened sphere)
+true_false,Python is an interpreted language.,True,False,,,True,Python code is executed line by line by an interpreter
+mcq,What does HTML stand for?,Hyper Text Markup Language,High Tech Modern Language,Home Tool Markup Language,Hyperlinks and Text Markup Language,A,HTML is the standard markup language for creating web pages
+image_mcq,Identify the shape shown in the image (upload image separately),Circle,Square,Triangle,Rectangle,A,Remember to upload the corresponding image file when creating this question
+video_mcq,Based on the video demonstration - what is the correct order of steps?,Setup - Execute - Verify,Execute - Setup - Verify,Verify - Setup - Execute,Setup - Verify - Execute,A,Upload a video file showing the process. Students watch and answer based on what they see
+descriptive,Explain the difference between RAM and ROM in computers.,,,,,,"Students should explain: RAM (Random Access Memory) is volatile temporary storage, ROM (Read-Only Memory) is non-volatile permanent storage. Allow 5-10 minutes for this answer."
+descriptive,Describe the water cycle and its importance to Earth's ecosystem.,,,,,,"Students should cover: evaporation, condensation, precipitation, collection. Explain environmental significance. Expected answer length: 200-300 words."
+video_response,Introduce yourself and explain why you chose this course.,,,,,,"Record a 2-3 minute video. Speak clearly, mention your name, background, and career goals. Look at the camera and be confident."
+video_response,Demonstrate how to solve the quadratic equation: x² + 5x + 6 = 0,,,,,,"Show your work step by step on paper/whiteboard. Explain each step clearly. Record for 3-5 minutes. Show final answer: x = -2 or x = -3"
+mcq,Which is the largest planet in our solar system?,Earth,Mars,Jupiter,Saturn,C,Jupiter is the largest planet with a diameter of about 143000 km
+true_false,Java and JavaScript are the same programming language.,True,False,,,False,Despite similar names they are completely different languages with different purposes
+mcq,What is 15% of 200?,25,30,35,40,B,Calculate: (15/100) × 200 = 30
+descriptive,What are the advantages and disadvantages of renewable energy sources?,,,,,,"Discuss solar, wind, hydro power. Cover environmental benefits, cost factors, reliability issues, and future potential. Minimum 250 words."
+video_response,Perform a basic chemistry experiment demonstrating acid-base reaction.,,,,,,"Use vinegar and baking soda. Show materials, procedure, observe reaction, and explain what's happening chemically. Safety first! Record 4-6 minutes."

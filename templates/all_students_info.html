@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Students Information - ATOM SHAALE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Century Gothic', 'Futura', sans-serif;
+            min-height: 100vh;
+            background: #000000;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Animated 3D Background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(ellipse at 10% 20%, rgba(0, 255, 157, 0.15) 0%, transparent 40%),
+                radial-gradient(ellipse at 90% 80%, rgba(0, 168, 255, 0.15) 0%, transparent 40%),
+                radial-gradient(ellipse at 50% 50%, rgba(138, 43, 226, 0.1) 0%, transparent 50%);
+            animation: bgFloat 20s ease-in-out infinite;
+            z-index: 0;
+        }
+
+        @keyframes bgFloat {
+            0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.5; }
+            50% { transform: scale(1.1) rotate(5deg); opacity: 0.8; }
+        }
+
+        /* Animated Grid Lines */
+        .grid-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 255, 157, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 157, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridMove 30s linear infinite;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        @keyframes gridMove {
+            0% { transform: perspective(500px) rotateX(60deg) translateY(0); }
+            100% { transform: perspective(500px) rotateX(60deg) translateY(50px); }
+        }
+
+        /* Floating Particles */
+        .particle {
+            position: fixed;
+            width: 4px;
+            height: 4px;
+            background: rgba(0, 255, 157, 0.5);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: particleFloat 15s infinite ease-in-out;
+            box-shadow: 0 0 10px rgba(0, 255, 157, 0.8);
+            z-index: 1;
+        }
+
+        @keyframes particleFloat {
+            0%, 100% { transform: translateY(0) translateX(0); opacity: 0; }
+            10%, 90% { opacity: 1; }
+            50% { transform: translateY(-100vh) translateX(50px); }
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 40px auto;
+            padding: 0 30px;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Holographic Header */
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            perspective: 1000px;
+        }
+
+        .header h1 {
+            font-family: 'Century Gothic', 'Futura', sans-serif;
+            font-size: 48px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #00ff9d 0%, #00a8ff 50%, #8a2be2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(0, 255, 157, 0.5);
+            margin-bottom: 15px;
+            animation: titleGlow 3s ease-in-out infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        @keyframes titleGlow {
+            0%, 100% { filter: brightness(1) drop-shadow(0 0 20px rgba(0, 255, 157, 0.6)); }
+            50% { filter: brightness(1.3) drop-shadow(0 0 40px rgba(0, 255, 157, 0.9)); }
+        }
+
+        .header p {
+            color: rgba(0, 255, 157, 0.8);
+            font-size: 16px;
+            font-weight: 400;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* Stats Row */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .stat-box {
+            background: rgba(16, 20, 35, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 255, 157, 0.3);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            cursor: pointer;
+        }
+
+        .stat-box::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(0, 255, 157, 0.1), transparent);
+            transform: rotate(45deg);
+            transition: all 0.6s;
+        }
+
+        .stat-box:hover::before {
+            animation: shimmer 1.5s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: rotate(45deg) translateY(-100%); }
+            100% { transform: rotate(45deg) translateY(100%); }
+        }
+
+        .stat-box:hover {
+            transform: translateY(-10px) scale(1.05);
+            border-color: rgba(0, 255, 157, 0.6);
+            box-shadow: 0 20px 60px rgba(0, 255, 157, 0.4);
+        }
+
+        .stat-box h3 {
+            font-family: 'Century Gothic', 'Futura', sans-serif;
+            font-size: 56px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #00ff9d, #00a8ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat-box p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Filters Section */
+        .filters {
+            background: rgba(16, 20, 35, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 255, 157, 0.3);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+            box-shadow: 0 10px 40px rgba(0, 255, 157, 0.2);
+        }
+
+        .filters label {
+            font-weight: 600;
+            color: #00ff9d;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .filters select,
+        .filters input {
+            padding: 12px 20px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid rgba(0, 255, 157, 0.3);
+            border-radius: 10px;
+            font-size: 14px;
+            color: #ffffff;
+            min-width: 200px;
+            transition: all 0.3s;
+            font-family: 'Century Gothic', 'Futura', sans-serif;
+        }
+
+        .filters select:focus,
+        .filters input:focus {
+            outline: none;
+            border-color: #00ff9d;
+            box-shadow: 0 0 20px rgba(0, 255, 157, 0.4);
+        }
+
+        .filters select option {
+            background: #0a0e27;
+            color: #ffffff;
+        }
+
+        /* Table Container */
+        .table-container {
+            background: rgba(16, 20, 35, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 255, 157, 0.3);
+            border-radius: 20px;
+            overflow: hidden;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0, 255, 157, 0.2);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        thead {
+            background: linear-gradient(135deg, rgba(0, 255, 157, 0.2), rgba(0, 168, 255, 0.2));
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        th {
+            padding: 20px 15px;
+            text-align: left;
+            font-weight: 700;
+            color: #00ff9d;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 13px;
+            white-space: nowrap;
+            border-bottom: 2px solid rgba(0, 255, 157, 0.3);
+        }
+
+        td {
+            padding: 18px 15px;
+            color: rgba(255, 255, 255, 0.9);
+            border-bottom: 1px solid rgba(0, 255, 157, 0.1);
+        }
+
+        tbody tr {
+            transition: all 0.3s;
+        }
+
+        tbody tr:hover {
+            background: rgba(0, 255, 157, 0.1);
+            transform: scale(1.01);
+        }
+
+        .status-badge {
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-size: 12px;
+            font-weight: 700;
+            display: inline-block;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .status-approved {
+            background: linear-gradient(135deg, #00ff9d, #00d4aa);
+            color: #000000;
+            box-shadow: 0 4px 20px rgba(0, 255, 157, 0.5);
+        }
+
+        .status-pending {
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #000000;
+            box-shadow: 0 4px 20px rgba(255, 215, 0, 0.5);
+        }
+
+        .status-rejected {
+            background: linear-gradient(135deg, #ff4444, #cc0000);
+            color: #ffffff;
+            box-shadow: 0 4px 20px rgba(255, 68, 68, 0.5);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-small {
+            padding: 8px 14px;
+            font-size: 12px;
+            border: 2px solid rgba(0, 255, 157, 0.4);
+            border-radius: 8px;
+            cursor: pointer;
+            color: white;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-view {
+            border-color: rgba(0, 168, 255, 0.6);
+        }
+
+        .btn-view:hover {
+            background: rgba(0, 168, 255, 0.3);
+            border-color: #00a8ff;
+            box-shadow: 0 0 20px rgba(0, 168, 255, 0.6);
+            transform: scale(1.1);
+        }
+
+        .btn-edit {
+            border-color: rgba(0, 255, 157, 0.6);
+        }
+
+        .btn-edit:hover {
+            background: rgba(0, 255, 157, 0.3);
+            border-color: #00ff9d;
+            box-shadow: 0 0 20px rgba(0, 255, 157, 0.6);
+            transform: scale(1.1);
+        }
+
+        .btn-delete {
+            border-color: rgba(255, 68, 68, 0.6);
+        }
+
+        .btn-delete:hover {
+            background: rgba(255, 68, 68, 0.3);
+            border-color: #ff4444;
+            box-shadow: 0 0 20px rgba(255, 68, 68, 0.6);
+            transform: scale(1.1);
+        }
+
+        .btn-reset {
+            border-color: rgba(255, 193, 7, 0.6);
+        }
+
+        .btn-reset:hover {
+            background: rgba(255, 193, 7, 0.3);
+            border-color: #ffc107;
+            box-shadow: 0 0 20px rgba(255, 193, 7, 0.6);
+            transform: scale(1.1);
+        }
+
+        /* Action Buttons at Bottom */
+        .export-btn, .back-btn {
+            padding: 15px 35px;
+            border: 2px solid rgba(0, 255, 157, 0.4);
+            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            color: #00ff9d;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            font-size: 15px;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .export-btn {
+            border-color: rgba(0, 168, 255, 0.6);
+            color: #00a8ff;
+        }
+
+        .export-btn:hover {
+            background: rgba(0, 168, 255, 0.2);
+            border-color: #00a8ff;
+            box-shadow: 0 0 30px rgba(0, 168, 255, 0.6);
+            transform: translateY(-3px);
+        }
+
+        .back-btn:hover {
+            background: rgba(0, 255, 157, 0.2);
+            border-color: #00ff9d;
+            box-shadow: 0 0 30px rgba(0, 255, 157, 0.6);
+            transform: translateY(-3px);
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 60px 20px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .no-data svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            opacity: 0.4;
+        }
+
+        .no-data h3 {
+            font-family: 'Century Gothic', 'Futura', sans-serif;
+            color: #00ff9d;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .no-data p {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .alert {
+            padding: 20px 30px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            border: 2px solid;
+            backdrop-filter: blur(10px);
+            font-weight: 600;
+        }
+
+        .alert-success {
+            background: rgba(0, 255, 157, 0.2);
+            border-color: #00ff9d;
+            color: #00ff9d;
+            box-shadow: 0 4px 20px rgba(0, 255, 157, 0.3);
+        }
+
+        .alert-danger {
+            background: rgba(255, 68, 68, 0.2);
+            border-color: #ff4444;
+            color: #ff4444;
+            box-shadow: 0 4px 20px rgba(255, 68, 68, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-overlay"></div>
+    
+    <!-- Floating Particles -->
+    <script nonce="{{ csp_nonce() }}">
+        for(let i = 0; i < 15; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 15 + 's';
+            particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+            document.body.appendChild(particle);
+        }
+    </script>
+
+    <div class="container">
+        <div class="header">
+            <h1>
+                <svg width="48" height="48" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H7Zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm-5.784 6A2.238 2.238 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.325 6.325 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1h4.216ZM4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"/>
+                </svg>
+                All Students Information
+            </h1>
+            <p>Complete list of all registered students</p>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages[-1:] %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="stats-row">
+            <div class="stat-box">
+                <h3>{{ total_students }}</h3>
+                <p>Total Students</p>
+            </div>
+            <div class="stat-box">
+                <h3>{{ approved_count }}</h3>
+                <p>Approved</p>
+            </div>
+            <div class="stat-box">
+                <h3>{{ pending_count }}</h3>
+                <p>Pending</p>
+            </div>
+            <div class="stat-box">
+                <h3>{{ rejected_count }}</h3>
+                <p>Rejected</p>
+            </div>
+        </div>
+
+        <div class="filters">
+            <label>Filter by Status:</label>
+            <select id="statusFilter">
+                <option value="all">All Students</option>
+                <option value="approved">Approved</option>
+                <option value="pending">Pending</option>
+                <option value="rejected">Rejected</option>
+            </select>
+
+            <label>Filter by Course:</label>
+            <select id="courseFilter">
+                <option value="all">All Courses</option>
+                {% for course in courses %}
+                <option value="{{ course }}">{{ course }}</option>
+                {% endfor %}
+            </select>
+
+            <label>Search:</label>
+            <input type="text" id="searchInput" placeholder="Search by name or email...">
+        </div>
+
+        <div class="table-container">
+            <table id="studentsTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Course</th>
+                        <th>Status</th>
+                        <th>Registered Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if students %}
+                        {% for student in students %}
+                        <tr data-status="{{ student[4] }}" data-course="{{ student[3] }}">
+                            <td>{{ student[0] }}</td>
+                            <td>{{ student[1] }}</td>
+                            <td>{{ student[2] }}</td>
+                            <td>{{ student[3] }}</td>
+                            <td>
+                                {% if student[4] == 'approved' %}
+                                    <span class="status-badge status-approved">Approved</span>
+                                {% elif student[4] == 'pending' %}
+                                    <span class="status-badge status-pending">Pending</span>
+                                {% else %}
+                                    <span class="status-badge status-rejected">Rejected</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ student[5].strftime('%Y-%m-%d %H:%M') if student[5] else 'N/A' }}</td>
+                            <td>
+                                <div class="action-buttons">
+                                    <a href="{{ url_for('student_report', student_id=student[0]) }}" class="btn-small btn-view">
+                                        <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16" style="vertical-align: middle;">
+                                            <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z"/>
+                                            <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z"/>
+                                        </svg>
+                                    </a>
+                                    {% if student[4] == 'pending' %}
+                                    <form method="POST" action="{{ url_for('approve_student', student_id=student[0]) }}" style="display: inline;">
+                                        <button type="submit" class="btn-small btn-edit" title="Approve">
+                                            <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16" style="vertical-align: middle;">
+                                                <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/>
+                                            </svg>
+                                        </button>
+                                    </form>
+                                    <form method="POST" action="{{ url_for('reject_student', student_id=student[0]) }}" style="display: inline;">
+                                        <button type="submit" class="btn-small btn-delete" title="Reject">
+                                            <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16" style="vertical-align: middle;">
+                                                <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                                            </svg>
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                    {% if student[4] == 'approved' %}
+                                    <button type="button" class="btn-small btn-reset" title="Reset Password" data-student-id="{{ student[0] }}" data-student-name="{{ student[1] }}">
+                                        <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16" style="vertical-align: middle;">
+                                            <path d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41zm-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9z"/>
+                                            <path fill-rule="evenodd" d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5.002 5.002 0 0 0 8 3zM3.1 9a5.002 5.002 0 0 0 8.757 2.182.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9H3.1z"/>
+                                        </svg>
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="7" class="no-data">
+                                <svg fill="#666" viewBox="0 0 16 16">
+                                    <path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H7Zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm-5.784 6A2.238 2.238 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.325 6.325 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1h4.216ZM4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"/>
+                                </svg>
+                                <h3>No Students Found</h3>
+                                <p>There are no students registered in the system yet.</p>
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+        <div style="text-align: center; margin-top: 20px;">
+            <a href="{{ url_for('export_all_students_excel') }}" class="export-btn">
+                <svg width="18" height="18" fill="currentColor" viewBox="0 0 16 16" style="vertical-align: middle; margin-right: 5px;">
+                    <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                    <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
+                </svg>
+                Export to Excel
+            </a>
+            <a href="{{ url_for('admin_dashboard') }}" class="back-btn">
+                <svg width="18" height="18" fill="currentColor" viewBox="0 0 16 16" style="vertical-align: middle; margin-right: 5px;">
+                    <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+                </svg>
+                Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Reset Password Modal -->
+    <div id="resetPasswordModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); z-index: 99999; backdrop-filter: blur(10px);">
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(135deg, rgba(20, 20, 40, 0.95), rgba(10, 10, 20, 0.95)); padding: 40px; border-radius: 20px; border: 2px solid rgba(0, 255, 157, 0.4); box-shadow: 0 0 50px rgba(0, 255, 157, 0.3); max-width: 500px; width: 90%;">
+            <h3 style="color: #00ff9d; margin-bottom: 20px; font-size: 24px; text-align: center;">
+                <svg width="24" height="24" fill="currentColor" viewBox="0 0 16 16" style="vertical-align: middle; margin-right: 8px;">
+                    <path d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41zm-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9z"/>
+                    <path fill-rule="evenodd" d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5.002 5.002 0 0 0 8 3zM3.1 9a5.002 5.002 0 0 0 8.757 2.182.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9H3.1z"/>
+                </svg>
+                Reset Password
+            </h3>
+            <p id="studentNameDisplay" style="color: rgba(255, 255, 255, 0.8); margin-bottom: 25px; text-align: center; font-size: 16px;"></p>
+            <form id="resetPasswordForm" method="POST">
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" id="resetStudentId" name="student_id">
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; color: #00ff9d; margin-bottom: 8px; font-weight: 600;">New Password:</label>
+                    <input type="text" name="new_password" id="newPassword" required
+                           style="width: 100%; padding: 12px; background: rgba(0, 0, 0, 0.4); border: 2px solid rgba(0, 255, 157, 0.3); border-radius: 8px; color: white; font-size: 16px;">
+                    <small style="color: rgba(255, 255, 255, 0.6); display: block; margin-top: 8px;">Enter a new password for this student (minimum 6 characters)</small>
+                </div>
+                <div style="display: flex; gap: 15px; margin-top: 30px;">
+                    <button type="submit" style="flex: 1; padding: 12px 24px; background: linear-gradient(135deg, #00ff9d, #00a8ff); border: none; border-radius: 10px; color: #000; font-weight: 600; cursor: pointer; font-size: 16px; box-shadow: 0 0 20px rgba(0, 255, 157, 0.4); transition: all 0.3s ease;">
+                        Reset Password
+                    </button>
+                    <button type="button" id="cancelResetBtn" style="flex: 1; padding: 12px 24px; background: rgba(255, 68, 68, 0.2); border: 2px solid rgba(255, 68, 68, 0.6); border-radius: 10px; color: #ff4444; font-weight: 600; cursor: pointer; font-size: 16px; transition: all 0.3s ease;">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script nonce="{{ csp_nonce() }}">
+        function filterTable() {
+            const statusFilter = document.getElementById('statusFilter').value.toLowerCase();
+            const courseFilter = document.getElementById('courseFilter').value.toLowerCase();
+            const searchInput = document.getElementById('searchInput').value.toLowerCase();
+            const table = document.getElementById('studentsTable');
+            const rows = table.getElementsByTagName('tr');
+
+            let visibleCount = 0;
+
+            for (let i = 1; i < rows.length; i++) {
+                const row = rows[i];
+                
+                // Skip the "No Students Found" row
+                if (row.cells.length === 1 && row.cells[0].colSpan === 7) {
+                    continue;
+                }
+                
+                const status = row.getAttribute('data-status')?.toLowerCase() || '';
+                const course = row.getAttribute('data-course')?.toLowerCase() || '';
+                const name = row.cells[1]?.textContent.toLowerCase() || '';
+                const email = row.cells[2]?.textContent.toLowerCase() || '';
+
+                let showRow = true;
+
+                // Status filter
+                if (statusFilter !== 'all' && status !== statusFilter) {
+                    showRow = false;
+                }
+
+                // Course filter
+                if (courseFilter !== 'all' && course !== courseFilter) {
+                    showRow = false;
+                }
+
+                // Search filter
+                if (searchInput && !name.includes(searchInput) && !email.includes(searchInput)) {
+                    showRow = false;
+                }
+
+                if (showRow) {
+                    row.style.display = '';
+                    visibleCount++;
+                } else {
+                    row.style.display = 'none';
+                }
+            }
+
+            // Show message if no results
+            console.log(`Filtered results: ${visibleCount} students visible`);
+        }
+        
+        // Initialize event listeners when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            const statusFilter = document.getElementById('statusFilter');
+            const courseFilter = document.getElementById('courseFilter');
+            const searchInput = document.getElementById('searchInput');
+            
+            if (statusFilter) {
+                statusFilter.addEventListener('change', filterTable);
+            }
+            
+            if (courseFilter) {
+                courseFilter.addEventListener('change', filterTable);
+            }
+            
+            if (searchInput) {
+                searchInput.addEventListener('keyup', filterTable);
+            }
+
+            // Reset Password Modal
+            const resetPasswordModal = document.getElementById('resetPasswordModal');
+            const resetPasswordForm = document.getElementById('resetPasswordForm');
+            const cancelResetBtn = document.getElementById('cancelResetBtn');
+            const studentNameDisplay = document.getElementById('studentNameDisplay');
+            const resetStudentIdInput = document.getElementById('resetStudentId');
+            const newPasswordInput = document.getElementById('newPassword');
+
+            // Open modal when reset button clicked
+            document.querySelectorAll('.btn-reset').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const studentId = this.getAttribute('data-student-id');
+                    const studentName = this.getAttribute('data-student-name');
+                    resetStudentIdInput.value = studentId;
+                    studentNameDisplay.textContent = 'Reset password for: ' + studentName;
+                    newPasswordInput.value = '';
+                    resetPasswordModal.style.display = 'block';
+                });
+            });
+
+            // Close modal
+            cancelResetBtn.addEventListener('click', function() {
+                resetPasswordModal.style.display = 'none';
+            });
+
+            // Close modal on background click
+            resetPasswordModal.addEventListener('click', function(e) {
+                if (e.target === resetPasswordModal) {
+                    resetPasswordModal.style.display = 'none';
+                }
+            });
+
+            // Handle form submission
+            resetPasswordForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const formData = new FormData(this);
+                const studentId = formData.get('student_id');
+                
+                fetch('/admin/reset_student_password/' + studentId, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('✅ Password reset successfully!\n\nNew password: ' + data.new_password + '\n\nPlease share this password with the student.');
+                        resetPasswordModal.style.display = 'none';
+                        location.reload();
+                    } else {
+                        alert('❌ Error: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    alert('❌ Error resetting password: ' + error);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Exam - ATOM SHAALE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='futuristic-theme.css') }}">
+    <style>
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            font-family: 'Century Gothic', 'Futura', sans-serif;
+            font-size: 42px;
+            background: linear-gradient(135deg, #00ff9d, #00a8ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .header p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 16px;
+        }
+        
+        .form-card {
+            background: rgba(16, 20, 35, 0.8);
+            backdrop-filter: blur(20px);
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid rgba(0, 255, 157, 0.3);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+        
+        .info-tip {
+            background: linear-gradient(135deg, rgba(0, 255, 157, 0.15), rgba(0, 168, 255, 0.1));
+            border-left: 4px solid #00ff9d;
+            padding: 20px 24px;
+            margin: 25px 0;
+            border-radius: 12px;
+            color: rgba(255, 255, 255, 0.85);
+            font-weight: 500;
+            font-size: 14px;
+            line-height: 1.6;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        
+        .question-group {
+            margin-top: 30px;
+            padding: 30px;
+            border-radius: 20px;
+            background: rgba(10, 14, 27, 0.6);
+            border: 2px solid rgba(0, 255, 157, 0.3);
+            animation: fadeInScale 0.5s ease backwards;
+            transition: all 0.3s;
+        }
+        
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        .question-group:hover {
+            border-color: #00ff9d;
+            box-shadow: 0 10px 30px rgba(0, 255, 157, 0.3);
+        }
+        
+        .question-group h3 {
+            color: #00ff9d;
+            margin-bottom: 20px;
+            font-size: 20px;
+            font-weight: 700;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(0, 255, 157, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .question-number-badge {
+            background: linear-gradient(135deg, #00ff9d, #00a8ff);
+            color: #000;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 800;
+            box-shadow: 0 4px 12px rgba(0, 255, 157, 0.4);
+        }
+        
+        .mcq-options {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 25px;
+            border-radius: 16px;
+            margin-top: 20px;
+            border: 1px solid rgba(0, 255, 157, 0.2);
+        }
+        
+        .btn-remove {
+            padding: 8px 16px;
+            background: rgba(255, 68, 68, 0.2);
+            border: 2px solid rgba(255, 68, 68, 0.6);
+            color: #ff4444;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .btn-remove:hover {
+            background: rgba(255, 68, 68, 0.4);
+            border-color: #ff4444;
+            box-shadow: 0 8px 20px rgba(255, 68, 68, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        .button-group {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid rgba(0, 255, 157, 0.2);
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 40px;
+            background: rgba(10, 14, 27, 0.4);
+            border-radius: 20px;
+            border: 2px dashed rgba(0, 255, 157, 0.3);
+        }
+        
+        .empty-state svg {
+            opacity: 0.5;
+            margin-bottom: 20px;
+            color: #00ff9d;
+        }
+        
+        .empty-state h3 {
+            color: #00ff9d;
+            margin-bottom: 12px;
+            font-family: 'Century Gothic', 'Futura', sans-serif;
+        }
+        
+        .empty-state p {
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        input[type="file"] {
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 2px solid rgba(0, 255, 157, 0.3);
+            border-radius: 10px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+        }
+        
+        input[type="file"]::-webkit-file-upload-button {
+            background: linear-gradient(135deg, #00ff9d, #00a8ff);
+            color: #000;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 32px;
+            }
+            
+            .form-card {
+                padding: 30px 20px;
+            }
+            
+            .question-group {
+                padding: 25px 20px;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            .button-group .btn,
+            .button-group .btn-primary {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+        
+        .bulk-import-section {
+            background: linear-gradient(135deg, rgba(0, 168, 255, 0.15), rgba(0, 255, 157, 0.1));
+            border: 2px dashed rgba(0, 168, 255, 0.5);
+            padding: 30px;
+            border-radius: 16px;
+            margin: 25px 0;
+            text-align: center;
+        }
+        
+        .bulk-import-section h3 {
+            color: #00a8ff;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+        
+        .file-upload-wrapper {
+            position: relative;
+            display: inline-block;
+            margin: 15px 0;
+        }
+        
+        .file-upload-wrapper input[type="file"] {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        
+        .file-upload-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #00a8ff, #00ff9d);
+            color: #000;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .file-upload-label:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 168, 255, 0.4);
+        }
+        
+        #csv-file-name {
+            color: rgba(255, 255, 255, 0.9);
+            margin: 10px 0;
+            font-size: 14px;
+        }
+        
+        .btn-import {
+            padding: 12px 28px;
+            background: linear-gradient(135deg, #00ff9d, #00a8ff);
+            color: #000;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 15px;
+        }
+        
+        .btn-import:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 255, 157, 0.5);
+        }
+        
+        .btn-import:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        /* Enhanced Button Group Styling */
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .button-group button[type="button"],
+        .button-group button[type="submit"] {
+            padding: 16px 32px;
+            font-size: 16px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #00ff9d, #00a8ff);
+            border: none;
+            border-radius: 12px;
+            color: #000;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0, 255, 157, 0.3);
+            min-width: 180px;
+        }
+        
+        .button-group button[type="button"]:hover,
+        .button-group button[type="submit"]:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 30px rgba(0, 255, 157, 0.5);
+            filter: brightness(1.1);
+        }
+        
+        .button-group button[type="button"]:active,
+        .button-group button[type="submit"]:active {
+            transform: translateY(-1px);
+        }
+        
+        .button-group .btn {
+            padding: 14px 28px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(0, 255, 157, 0.4);
+            color: #00ff9d;
+            font-weight: 600;
+            text-decoration: none;
+        }
+        
+        .button-group .btn:hover {
+            background: rgba(0, 255, 157, 0.1);
+            border-color: #00ff9d;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0, 255, 157, 0.3);
+        }
+    </style>
+    <script nonce="{{ csp_nonce() }}">
+        let questionCounter = 0;
+
+        // Course selection function
+        function handleCourseChange(checkbox) {
+            if (checkbox.value === 'All Courses') {
+                // If "All Courses" is checked, uncheck all other courses
+                if (checkbox.checked) {
+                    document.querySelectorAll('.course-item').forEach(item => {
+                        item.checked = false;
+                    });
+                }
+            } else {
+                // If any specific course is checked, uncheck "All Courses"
+                const allCoursesCheckbox = document.querySelector('.all-courses-cb');
+                if (allCoursesCheckbox && checkbox.checked) {
+                    allCoursesCheckbox.checked = false;
+                }
+            }
+        }
+
+        function addQuestion() {
+            let container = document.getElementById("questions-container");
+            
+            // Hide empty state if it exists
+            const emptyState = document.getElementById("empty-state");
+            if (emptyState) {
+                emptyState.style.display = 'none';
+            }
+            
+            questionCounter++;
+            let questionIndex = questionCounter;
+            
+            console.log('Adding question #' + questionIndex);
+
+            let questionHTML = `
+                <div class="question-group" id="question-${questionIndex}" data-question-number="${questionIndex}">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <h3 style="margin: 0;">
+                            <span class="question-number-badge">${questionIndex}</span>
+                            Question ${questionIndex}
+                        </h3>
+                        <button type="button" class="btn-remove" data-question-id="${questionIndex}">
+                            <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                                <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                            </svg>
+                            Remove
+                        </button>
+                    </div>
+                    
+                    <label>
+                        <svg width="18" height="18" fill="currentColor" viewBox="0 0 16 16" style="vertical-align: middle; margin-right: 6px;">
+                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                            <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286zm1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z"/>
+                        </svg>
+                        Question Type:
+                    </label>
+                    <select name="question_type[]" class="question-type-select" required>
+                        <option value="mcq">Multiple Choice (MCQ)</option>
+                        <option value="true_false">True or False</option>
+                        <option value="image_mcq">Image-based MCQ</option>
+                        <option value="video_mcq">Video-based MCQ</option>
+                        <option value="descriptive">Descriptive Answer</option>
+                        <option value="video_response">Video Response</option>
+                    </select><br>
+                    
+                    <label>
+                        <svg width="18" height="18" fill="currentColor" viewBox="0 0 16 16" style="vertical-align: middle; margin-right: 6px;">
+                            <path d="M2.5 3.5a.5.5 0 0 1 0-1h11a.5.5 0 0 1 0 1h-11zm0 3a.5.5 0 0 1 0-1h6a.5.5 0 0 1 0 1h-6zm0 3a.5.5 0 0 1 0-1h6a.5.5 0 0 1 0 1h-6zm0 3a.5.5 0 0 1 0-1h11a.5.5 0 0 1 0 1h-11z"/>
+                        </svg>
+                        Question:
+                    </label>
+                    <textarea name="question[]" required placeholder="Enter your question here (e.g., Introduce yourself OR Tell us about your project)"></textarea><br>
+
+                    <div class="image-upload-section" style="display: none;">
+                        <label>
+                            <svg width="18" height="18" fill="currentColor" viewBox="0 0 16 16" style="vertical-align: middle; margin-right: 6px;">
+                                <path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
+                                <path d="M2.002 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2h-12zm12 1a1 1 0 0 1 1 1v6.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12V3a1 1 0 0 1 1-1h12z"/>
+                            </svg>
+                            <span class="media-upload-label">Upload Question Image:</span>
+                        </label>
+                        <input type="file" name="question_image[]" accept="image/*,video/*" class="media-upload-input"><br>
+                    </div>
+
+                    <div class="mcq-options">
+                        <label>Option A:</label>
+                        <input type="text" name="option_a[]" placeholder="Enter option A"><br>
+
+                        <label>Option B:</label>
+                        <input type="text" name="option_b[]" placeholder="Enter option B"><br>
+
+                        <label>Option C:</label>
+                        <input type="text" name="option_c[]" placeholder="Enter option C"><br>
+
+                        <label>Option D:</label>
+                        <input type="text" name="option_d[]" placeholder="Enter option D"><br>
+
+                        <label>Correct Option:</label>
+                        <select name="correct_option[]">
+                            <option value="">Select correct answer</option>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                        </select><br>
+                    </div>
+
+                    <div class="true-false-options" style="display: none;">
+                        <label>Correct Answer:</label>
+                        <select name="tf_correct[]">
+                            <option value="">Select correct answer</option>
+                            <option value="True">True</option>
+                            <option value="False">False</option>
+                        </select><br>
+                    </div>
+
+                    <label>
+                        <svg width="18" height="18" fill="currentColor" viewBox="0 0 16 16" style="vertical-align: middle; margin-right: 6px;">
+                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                            <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+                        </svg>
+                        Explanation/Instructions:
+                    </label>
+                    <textarea name="explanation[]" placeholder="For video questions: Provide recording instructions (optional)"></textarea><br>
+                </div>
+            `;
+
+            container.insertAdjacentHTML('beforeend', questionHTML);
+            
+            // Add event listener to the newly added remove button
+            const newQuestion = document.getElementById(`question-${questionIndex}`);
+            const removeBtn = newQuestion.querySelector('.btn-remove');
+            removeBtn.addEventListener('click', function() {
+                removeQuestion(this.getAttribute('data-question-id'));
+            });
+            
+            // Add event listener to question type select
+            const typeSelect = newQuestion.querySelector('.question-type-select');
+            typeSelect.addEventListener('change', function() {
+                toggleQuestionFields(this);
+            });
+            
+            console.log('Question #' + questionIndex + ' added successfully');
+        }
+
+        function toggleQuestionFields(selectElement) {
+            const questionGroup = selectElement.closest('.question-group');
+            const mcqOptions = questionGroup.querySelector('.mcq-options');
+            const trueFalseOptions = questionGroup.querySelector('.true-false-options');
+            const imageUpload = questionGroup.querySelector('.image-upload-section');
+            const mediaLabel = questionGroup.querySelector('.media-upload-label');
+            const mediaInput = questionGroup.querySelector('.media-upload-input');
+            const questionType = selectElement.value;
+            
+            // Hide all sections first
+            mcqOptions.style.display = 'none';
+            if (trueFalseOptions) trueFalseOptions.style.display = 'none';
+            if (imageUpload) imageUpload.style.display = 'none';
+            
+            // Remove required from all inputs
+            mcqOptions.querySelectorAll('input, select').forEach(input => {
+                input.removeAttribute('required');
+            });
+            if (trueFalseOptions) {
+                trueFalseOptions.querySelectorAll('select').forEach(input => {
+                    input.removeAttribute('required');
+                });
+            }
+            
+            // Show relevant sections and set required based on question type
+            if (questionType === 'mcq') {
+                mcqOptions.style.display = 'block';
+                mcqOptions.querySelectorAll('input[type="text"]').forEach(input => {
+                    input.setAttribute('required', 'required');
+                });
+                mcqOptions.querySelector('select[name="correct_option[]"]').setAttribute('required', 'required');
+            } else if (questionType === 'true_false') {
+                if (trueFalseOptions) {
+                    trueFalseOptions.style.display = 'block';
+                    trueFalseOptions.querySelector('select').setAttribute('required', 'required');
+                }
+            } else if (questionType === 'image_mcq') {
+                mcqOptions.style.display = 'block';
+                if (imageUpload) {
+                    imageUpload.style.display = 'block';
+                    if (mediaLabel) mediaLabel.textContent = 'Upload Question Image:';
+                    if (mediaInput) mediaInput.accept = 'image/*';
+                }
+                mcqOptions.querySelectorAll('input[type="text"]').forEach(input => {
+                    input.setAttribute('required', 'required');
+                });
+                mcqOptions.querySelector('select[name="correct_option[]"]').setAttribute('required', 'required');
+            } else if (questionType === 'video_mcq') {
+                mcqOptions.style.display = 'block';
+                if (imageUpload) {
+                    imageUpload.style.display = 'block';
+                    if (mediaLabel) mediaLabel.textContent = 'Upload Question Video:';
+                    if (mediaInput) mediaInput.accept = 'video/*';
+                }
+                mcqOptions.querySelectorAll('input[type="text"]').forEach(input => {
+                    input.setAttribute('required', 'required');
+                });
+                mcqOptions.querySelector('select[name="correct_option[]"]').setAttribute('required', 'required');
+            } else if (questionType === 'video_response' || questionType === 'descriptive') {
+                // No options needed
+            }
+        }
+        
+        function removeQuestion(questionId) {
+            const questionElement = document.getElementById(`question-${questionId}`);
+            if (questionElement) {
+                // Confirm before removing
+                if (confirm('Are you sure you want to remove this question?')) {
+                    questionElement.remove();
+                    renumberQuestions();
+                    
+                    // Show empty state if no questions left
+                    const remainingQuestions = document.querySelectorAll('.question-group');
+                    if (remainingQuestions.length === 0) {
+                        const emptyState = document.getElementById("empty-state");
+                        if (emptyState) {
+                            emptyState.style.display = 'block';
+                        }
+                    }
+                }
+            }
+        }
+        
+        function renumberQuestions() {
+            const questions = document.querySelectorAll('.question-group');
+            questions.forEach((question, index) => {
+                const newNumber = index + 1;
+                const badge = question.querySelector('.question-number-badge');
+                const heading = question.querySelector('h3');
+                
+                if (badge) badge.textContent = newNumber;
+                if (heading) {
+                    const headingText = heading.childNodes;
+                    headingText.forEach(node => {
+                        if (node.nodeType === Node.TEXT_NODE && node.textContent.includes('Question')) {
+                            node.textContent = ` Question ${newNumber} `;
+                        }
+                    });
+                }
+            });
+        }
+        
+        // Don't auto-add question on load - let user add them
+        window.addEventListener('DOMContentLoaded', function() {
+            // Show instruction to add questions
+            console.log('Ready to create exam. Click "Add Question" to start.');
+        });
+        
+        function validateForm() {
+            const questions = document.querySelectorAll('.question-group');
+            const csvFileInput = document.getElementById('csv-file-input');
+            
+            if (questions.length === 0) {
+                // Check if CSV file is selected but not imported
+                if (csvFileInput && csvFileInput.files.length > 0) {
+                    alert('⚠️ You selected a CSV file but haven\'t imported it yet!\n\n1. Click the "Import Questions from CSV" button (blue button)\n2. Wait for questions to be generated\n3. Then click "Create Exam"');
+                    return false;
+                }
+                
+                alert('❌ Error: You must add at least one question to the exam!\n\nPlease either:\n- Click "Import Questions from CSV" button after selecting a CSV file, OR\n- Click "Add Question" button to add questions manually');
+                return false;
+            }
+            return true;
+        }
+        
+        // Bulk CSV Import Functions
+        function updateFileName() {
+            const fileInput = document.getElementById('csv-file-input');
+            const fileNameDisplay = document.getElementById('csv-file-name');
+            const importBtn = document.getElementById('import-csv-btn');
+            
+            if (fileInput.files.length > 0) {
+                const fileName = fileInput.files[0].name;
+                fileNameDisplay.innerHTML = `<strong>Selected:</strong> ${fileName}`;
+                importBtn.disabled = false;
+            } else {
+                fileNameDisplay.innerHTML = '';
+                importBtn.disabled = true;
+            }
+        }
+        
+        async function importQuestionsFromCSV() {
+            const fileInput = document.getElementById('csv-file-input');
+            const importBtn = document.getElementById('import-csv-btn');
+            
+            if (!fileInput.files.length) {
+                alert('Please select a CSV file first!');
+                return;
+            }
+            
+            const file = fileInput.files[0];
+            const formData = new FormData();
+            formData.append('csv_file', file);
+            
+            importBtn.disabled = true;
+            importBtn.innerHTML = '<svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41zm-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9z"/><path fill-rule="evenodd" d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5.002 5.002 0 0 0 8 3zM3.1 9a5.002 5.002 0 0 0 8.757 2.182.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9H3.1z"/></svg> Processing...';
+            
+            try {
+                const response = await fetch('/admin/import_questions', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Hide empty state
+                    const emptyState = document.getElementById('empty-state');
+                    if (emptyState) emptyState.style.display = 'none';
+                    
+                    // Add each question
+                    result.questions.forEach((q, index) => {
+                        addQuestionFromData(q);
+                    });
+                    
+                    alert(`✅ Success! Imported ${result.questions.length} questions from CSV.`);
+                    
+                    // Reset file input
+                    fileInput.value = '';
+                    document.getElementById('csv-file-name').innerHTML = '';
+                } else {
+                    alert(`❌ Error: ${result.message}`);
+                }
+                
+            } catch (error) {
+                alert(`❌ Error importing questions: ${error.message}`);
+            } finally {
+                importBtn.disabled = false;
+                importBtn.innerHTML = '<svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z"/></svg> Import Questions from CSV';
+            }
+        }
+        
+        function addQuestionFromData(data) {
+            let container = document.getElementById("questions-container");
+            questionCounter++;
+            let questionIndex = questionCounter;
+            
+            const qType = data.question_type;
+            const questionText = data.question_text || '';
+            const optionA = data.option_a || '';
+            const optionB = data.option_b || '';
+            const optionC = data.option_c || '';
+            const optionD = data.option_d || '';
+            const correctAnswer = data.correct_answer || '';
+            const explanation = data.explanation || '';
+            
+            // Determine which options to show
+            let mcqDisplay = 'none';
+            let tfDisplay = 'none';
+            let mediaDisplay = 'none';
+            let mediaLabel = 'Upload Question Image:';
+            let mediaAccept = 'image/*';
+            
+            if (qType === 'mcq' || qType === 'image_mcq' || qType === 'video_mcq') {
+                mcqDisplay = 'block';
+            }
+            if (qType === 'image_mcq') {
+                mediaDisplay = 'block';
+                mediaLabel = 'Upload Question Image:';
+                mediaAccept = 'image/*';
+            }
+            if (qType === 'video_mcq') {
+                mediaDisplay = 'block';
+                mediaLabel = 'Upload Question Video:';
+                mediaAccept = 'video/*';
+            }
+            if (qType === 'true_false') {
+                tfDisplay = 'block';
+            }
+            
+            let questionHTML = `
+                <div class="question-group" id="question-${questionIndex}" data-question-number="${questionIndex}">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <h3 style="margin: 0;">
+                            <span class="question-number-badge">${questionIndex}</span>
+                            Question ${questionIndex}
+                        </h3>
+                        <button type="button" class="btn-remove" data-question-id="${questionIndex}">
+                            <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                                <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                            </svg>
+                            Remove
+                        </button>
+                    </div>
+                    
+                    <label>Question Type:</label>
+                    <select name="question_type[]" class="question-type-select" required>
+                        <option value="mcq" ${qType === 'mcq' ? 'selected' : ''}>Multiple Choice (MCQ)</option>
+                        <option value="true_false" ${qType === 'true_false' ? 'selected' : ''}>True or False</option>
+                        <option value="image_mcq" ${qType === 'image_mcq' ? 'selected' : ''}>Image-based MCQ</option>
+                        <option value="video_mcq" ${qType === 'video_mcq' ? 'selected' : ''}>Video-based MCQ</option>
+                        <option value="descriptive" ${qType === 'descriptive' ? 'selected' : ''}>Descriptive Answer</option>
+                        <option value="video_response" ${qType === 'video_response' ? 'selected' : ''}>Video Response</option>
+                    </select><br>
+                    
+                    <label>Question:</label>
+                    <textarea name="question[]" required>${questionText}</textarea><br>
+
+                    <div class="image-upload-section" style="display: ${mediaDisplay};">
+                        <label><span class="media-upload-label">${mediaLabel}</span></label>
+                        <input type="file" name="question_image[]" accept="${mediaAccept}" class="media-upload-input"><br>
+                    </div>
+
+                    <div class="mcq-options" style="display: ${mcqDisplay};">
+                        <label>Option A:</label>
+                        <input type="text" name="option_a[]" value="${optionA}" ${mcqDisplay === 'block' ? 'required' : ''}><br>
+
+                        <label>Option B:</label>
+                        <input type="text" name="option_b[]" value="${optionB}" ${mcqDisplay === 'block' ? 'required' : ''}><br>
+
+                        <label>Option C:</label>
+                        <input type="text" name="option_c[]" value="${optionC}" ${mcqDisplay === 'block' ? 'required' : ''}><br>
+
+                        <label>Option D:</label>
+                        <input type="text" name="option_d[]" value="${optionD}" ${mcqDisplay === 'block' ? 'required' : ''}><br>
+
+                        <label>Correct Option:</label>
+                        <select name="correct_option[]" ${mcqDisplay === 'block' ? 'required' : ''}>
+                            <option value="">Select correct answer</option>
+                            <option value="A" ${correctAnswer === 'A' ? 'selected' : ''}>A</option>
+                            <option value="B" ${correctAnswer === 'B' ? 'selected' : ''}>B</option>
+                            <option value="C" ${correctAnswer === 'C' ? 'selected' : ''}>C</option>
+                            <option value="D" ${correctAnswer === 'D' ? 'selected' : ''}>D</option>
+                        </select><br>
+                    </div>
+
+                    <div class="true-false-options" style="display: ${tfDisplay};">
+                        <label>Correct Answer:</label>
+                        <select name="tf_correct[]" ${tfDisplay === 'block' ? 'required' : ''}>
+                            <option value="">Select correct answer</option>
+                            <option value="True" ${correctAnswer === 'True' ? 'selected' : ''}>True</option>
+                            <option value="False" ${correctAnswer === 'False' ? 'selected' : ''}>False</option>
+                        </select><br>
+                    </div>
+
+                    <label>Explanation/Instructions:</label>
+                    <textarea name="explanation[]">${explanation}</textarea><br>
+                </div>
+            `;
+
+            container.insertAdjacentHTML('beforeend', questionHTML);
+            
+            // Add event listeners to dynamically added elements
+            const newQuestion = document.getElementById(`question-${questionIndex}`);
+            const removeBtn = newQuestion.querySelector('.btn-remove');
+            removeBtn.addEventListener('click', function() {
+                removeQuestion(this.getAttribute('data-question-id'));
+            });
+            
+            const typeSelect = newQuestion.querySelector('.question-type-select');
+            typeSelect.addEventListener('change', function() {
+                toggleQuestionFields(this);
+            });
+        }
+        
+        // Initialize all event listeners when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add Question button
+            const addQuestionBtn = document.getElementById('add-question-btn');
+            if (addQuestionBtn) {
+                addQuestionBtn.addEventListener('click', addQuestion);
+            }
+            
+            // Import CSV button
+            const importCsvBtn = document.getElementById('import-csv-btn');
+            if (importCsvBtn) {
+                importCsvBtn.addEventListener('click', importQuestionsFromCSV);
+            }
+            
+            // CSV file input
+            const csvFileInput = document.getElementById('csv-file-input');
+            if (csvFileInput) {
+                csvFileInput.addEventListener('change', updateFileName);
+            }
+            
+            // Course checkboxes - event delegation
+            const coursesContainer = document.querySelector('.courses-select');
+            if (coursesContainer) {
+                coursesContainer.addEventListener('change', function(e) {
+                    if (e.target.matches('input[type="checkbox"]')) {
+                        handleCourseChange(e.target);
+                    }
+                });
+            }
+            
+            // Form submit validation
+            const createExamForm = document.getElementById('create-exam-form');
+            if (createExamForm) {
+                createExamForm.addEventListener('submit', function(e) {
+                    if (!validateForm()) {
+                        e.preventDefault();
+                        return false;
+                    }
+                });
+            }
+        });
+    </script>
+</head>
+<body>
+    <div class="grid-overlay"></div>
+    
+    <script nonce="{{ csp_nonce() }}">
+        for(let i = 0; i < 15; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 15 + 's';
+            particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+            document.body.appendChild(particle);
+        }
+    </script>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div style="position: fixed; top: 20px; right: 20px; z-index: 9999; max-width: 400px;">
+                {% for category, message in messages %}
+                    <div class="flash-message flash-{{ category }}" style="
+                        padding: 20px 25px;
+                        margin-bottom: 15px;
+                        border-radius: 15px;
+                        font-family: 'Inter', sans-serif;
+                        font-size: 15px;
+                        font-weight: 600;
+                        backdrop-filter: blur(20px);
+                        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+                        animation: slideInRight 0.5s ease, fadeOut 0.5s ease 4.5s forwards;
+                        border: 2px solid;
+                        {% if category == 'success' %}
+                            background: rgba(0, 255, 157, 0.2);
+                            color: #00ff9d;
+                            border-color: #00ff9d;
+                            box-shadow: 0 0 40px rgba(0, 255, 157, 0.5);
+                        {% elif category == 'danger' %}
+                            background: rgba(255, 70, 70, 0.2);
+                            color: #ff6b6b;
+                            border-color: #ff6b6b;
+                            box-shadow: 0 0 40px rgba(255, 70, 70, 0.5);
+                        {% elif category == 'warning' %}
+                            background: rgba(255, 193, 7, 0.2);
+                            color: #ffc107;
+                            border-color: #ffc107;
+                            box-shadow: 0 0 40px rgba(255, 193, 7, 0.5);
+                        {% else %}
+                            background: rgba(0, 168, 255, 0.2);
+                            color: #00a8ff;
+                            border-color: #00a8ff;
+                            box-shadow: 0 0 40px rgba(0, 168, 255, 0.5);
+                        {% endif %}
+                    ">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+            <style>
+                @keyframes slideInRight {
+                    from {
+                        transform: translateX(400px);
+                        opacity: 0;
+                    }
+                    to {
+                        transform: translateX(0);
+                        opacity: 1;
+                    }
+                }
+                @keyframes fadeOut {
+                    to {
+                        opacity: 0;
+                        transform: translateX(400px);
+                    }
+                }
+            </style>
+        {% endif %}
+    {% endwith %}
+
+    <div class="container">
+        <div class="header">
+            <h1>
+                <svg width="48" height="48" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M5.5 7a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1h-5zM5 9.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm0 2a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5z"/>
+                    <path d="M9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.5L9.5 0zm0 1v2A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5z"/>
+                </svg>
+                Create New Exam
+            </h1>
+            <p>Design your exam with multiple choice and video response questions</p>
+        </div>
+        
+        <div class="form-card">
+            <form id="create-exam-form" action="{{ url_for('create_exam') }}" method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                <div class="info-tip">
+                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                        <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+                    </svg>
+                    <span>
+                        <strong>Quick Tip:</strong> Click "Add Question" below to add as many questions as you need. You can mix MCQ, True/False, Image-based, Descriptive, and Video Response questions in one exam.
+                    </span>
+                </div>
+                
+                <label>
+                    <svg width="18" height="18" fill="currentColor" viewBox="0 0 16 16" style="vertical-align: middle; margin-right: 6px;">
+                        <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.101l-5.223 2.815A.5.5 0 0 1 2 15.5V2zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1H4z"/>
+                    </svg>
+                    Exam Title:
+                </label>
+                <input type="text" name="exam_title" required placeholder="e.g., Final Assessment 2024"><br>
+
+                <label>
+                    <svg width="18" height="18" fill="currentColor" viewBox="0 0 16 16" style="vertical-align: middle; margin-right: 6px;">
+                        <path d="M12.166 8.94c-.524 1.062-1.234 2.12-1.96 3.07A31.493 31.493 0 0 1 8 14.58a31.481 31.481 0 0 1-2.206-2.57c-.726-.95-1.436-2.008-1.96-3.07C3.304 7.867 3 6.862 3 6a5 5 0 0 1 10 0c0 .862-.305 1.867-.834 2.94zM8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10z"/>
+                        <path d="M8 8a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm0 1a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+                    </svg>
+                    Subject:
+                </label>
+                <input type="text" name="subject" required placeholder="e.g., Mathematics, Science, Programming"><br>
+
+                <label>
+                    <svg width="18" height="18" fill="currentColor" viewBox="0 0 16 16" style="vertical-align: middle; margin-right: 6px;">
+                        <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"/>
+                        <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"/>
+                    </svg>
+                    Time Limit (Optional):
+                </label>
+                <input type="number" name="time_limit" min="1" max="300" placeholder="Enter time in minutes (leave blank for no limit)" style="margin-bottom: 10px;">
+                <div class="info-tip" style="margin-top: 10px; margin-bottom: 20px;">
+                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                        <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+                    </svg>
+                    <span>Set a time limit in minutes. When time expires, the exam will automatically submit. Leave blank for unlimited time.</span>
+                </div>
+
+                <label>
+                    <svg width="18" height="18" fill="currentColor" viewBox="0 0 16 16" style="vertical-align: middle; margin-right: 6px;">
+                        <path d="M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82zM12 3L1 9l11 6 9-4.91V17h2V9L12 3z"/>
+                    </svg>
+                    Assign to Courses:
+                </label>
+                <div style="background: rgba(0, 0, 0, 0.3); padding: 20px; border-radius: 12px; border: 1px solid rgba(0, 255, 157, 0.2); margin-bottom: 20px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px;" id="courses-list">
+                        {% if available_courses %}
+                            {% for course in available_courses %}
+                                <label style="display: flex; align-items: center; gap: 10px; padding: 10px; {% if course == 'All Courses' %}background: rgba(0, 255, 157, 0.1); border: 2px solid rgba(0, 255, 157, 0.4);{% else %}background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(0, 255, 157, 0.1);{% endif %} border-radius: 8px; cursor: pointer; transition: all 0.3s;" class="course-checkbox">
+                                    <input type="checkbox" name="courses[]" value="{{ course }}" {% if course == 'All Courses' %}class="all-courses-cb"{% else %}class="course-item"{% endif %}
+                                           style="width: {% if course == 'All Courses' %}18{% else %}16{% endif %}px; height: {% if course == 'All Courses' %}18{% else %}16{% endif %}px; cursor: pointer; accent-color: {% if course == 'All Courses' %}#00ff9d{% else %}#00a8ff{% endif %};">
+                                    <span style="color: {% if course == 'All Courses' %}#00ff9d{% else %}rgba(255, 255, 255, 0.9){% endif %}; font-size: 14px; font-weight: {% if course == 'All Courses' %}600{% else %}400{% endif %};">{{ course }}</span>
+                                </label>
+                            {% endfor %}
+                        {% else %}
+                            <p style="color: rgba(255, 255, 255, 0.6); font-style: italic;">No courses found. Students need to register with courses first.</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="info-tip" style="background: linear-gradient(135deg, rgba(255, 195, 18, 0.15), rgba(255, 152, 0, 0.1)); border-left-color: #ffc312;">
+                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                    </svg>
+                    <span>
+                        <strong>Important:</strong> Select courses to assign this exam to specific students. If "All Courses" is selected, all students can take this exam regardless of their course. If no courses are selected, no students will see this exam.
+                    </span>
+                </div>
+
+                <!-- BULK IMPORT SECTION -->
+                <div class="bulk-import-section">
+                    <h3>
+                        <svg width="24" height="24" fill="currentColor" viewBox="0 0 16 16" style="vertical-align: middle;">
+                            <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                            <path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z"/>
+                        </svg>
+                        Bulk Import Questions from CSV
+                    </h3>
+                    <p style="color: rgba(255, 255, 255, 0.7); margin-bottom: 15px;">
+                        Upload your CSV file with all questions to automatically generate them below.
+                        <br>
+                        <a href="{{ url_for('download_template') }}" style="color: #00ff9d; text-decoration: underline; font-weight: 600;">
+                            <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16" style="vertical-align: middle; margin-right: 4px;">
+                                <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                                <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
+                            </svg>
+                            Download CSV Template
+                        </a>
+                    </p>
+                    
+                    <div class="file-upload-wrapper">
+                        <input type="file" id="csv-file-input" accept=".csv">
+                        <label for="csv-file-input" class="file-upload-label">
+                            <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                                <path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z"/>
+                            </svg>
+                            Choose CSV File
+                        </label>
+                    </div>
+                    
+                    <div id="csv-file-name"></div>
+                    
+                    <button type="button" id="import-csv-btn" class="btn-import" disabled>
+                        <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                            <path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z"/>
+                        </svg>
+                        Import Questions from CSV
+                    </button>
+                    
+                    <p style="color: rgba(255, 255, 255, 0.6); font-size: 13px; margin-top: 15px;">
+                        💡 Or add questions manually using the button below
+                    </p>
+                </div>
+
+                <div id="questions-container">
+                    <!-- Questions will be dynamically added here -->
+                </div>
+
+                <div class="button-group">
+                    <button type="button" id="add-question-btn" class="btn-primary">
+                        <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                        </svg>
+                        Add Question
+                    </button>
+                    <button type="submit" class="btn-primary">
+                        <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/>
+                        </svg>
+                        Create Exam
+                    </button>
+                    <a href="/admin-dashboard.html" class="btn">
+                        <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+                        </svg>
+                        Back to Dashboard
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

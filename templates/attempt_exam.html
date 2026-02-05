@@ -1,0 +1,2422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATOM SHAALE - Exam Portal</title>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Century Gothic', 'Futura', -apple-system, BlinkMacSystemFont, sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background: #0a0e27;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(0, 128, 55, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(0, 255, 106, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(0, 128, 55, 0.12) 0%, transparent 40%);
+            pointer-events: none;
+            z-index: 0;
+            animation: pulseGlow 8s ease-in-out infinite;
+        }
+        
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .animated-bg-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(0, 128, 55, 0.03) 2px,
+                    rgba(0, 128, 55, 0.03) 4px
+                );
+            pointer-events: none;
+            z-index: 0;
+            animation: scanlines 10s linear infinite;
+        }
+        
+        @keyframes scanlines {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(20px); }
+        }
+        
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        
+        .exam-header {
+            background: rgba(16, 20, 35, 0.8);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.5),
+                0 0 0 1px rgba(0, 128, 55, 0.3) inset,
+                0 0 40px rgba(0, 128, 55, 0.2);
+            border: 1px solid rgba(0, 128, 55, 0.4);
+            animation: slideDown 0.8s cubic-bezier(0.16, 1, 0.3, 1), glow 3s ease-in-out infinite;
+        }
+        
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(0, 128, 55, 0.3) inset, 0 0 40px rgba(0, 128, 55, 0.2); }
+            50% { box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(0, 128, 55, 0.5) inset, 0 0 60px rgba(0, 128, 55, 0.4); }
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .exam-title {
+            font-size: 42px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #00ff6a 0%, #008037 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 20px;
+            line-height: 1.2;
+            letter-spacing: -1px;
+            filter: drop-shadow(0 0 20px rgba(0, 255, 106, 0.3));
+            animation: titleGlow 2s ease-in-out infinite;
+        }
+        
+        @keyframes titleGlow {
+            0%, 100% { filter: drop-shadow(0 0 20px rgba(0, 255, 106, 0.3)); }
+            50% { filter: drop-shadow(0 0 30px rgba(0, 255, 106, 0.6)); }
+        }
+        
+        .exam-meta {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+            margin-top: 25px;
+        }
+        
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, rgba(0, 128, 55, 0.2), rgba(0, 128, 55, 0.1));
+            border-radius: 12px;
+            font-weight: 600;
+            color: #b8e6d5;
+            border: 1px solid rgba(0, 128, 55, 0.4);
+            transition: all 0.3s ease;
+        }
+        
+        .meta-item:hover {
+            background: linear-gradient(135deg, rgba(0, 128, 55, 0.3), rgba(0, 128, 55, 0.15));
+            border-color: #008037;
+            transform: translateY(-2px);
+        }
+        
+        .meta-icon {
+            width: 24px;
+            height: 24px;
+            fill: #00ff6a;
+            filter: drop-shadow(0 0 8px rgba(0, 255, 106, 0.4));
+        }
+        
+        .question-box {
+            background: rgba(16, 20, 35, 0.7);
+            backdrop-filter: blur(20px);
+            padding: 40px;
+            margin: 25px 0;
+            border-radius: 24px;
+            box-shadow: 
+                0 10px 40px rgba(0, 0, 0, 0.5),
+                0 0 0 1px rgba(0, 128, 55, 0.2) inset;
+            border: 1px solid rgba(0, 128, 55, 0.3);
+            animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+            animation-delay: calc(var(--question-index) * 0.1s);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .question-box:hover {
+            transform: translateY(-4px);
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.6),
+                0 0 0 1px rgba(0, 128, 55, 0.4) inset,
+                0 0 30px rgba(0, 128, 55, 0.3);
+            border-color: #008037;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .question-box h3 {
+            color: #e0f2e9;
+            margin-bottom: 25px;
+            font-size: 22px;
+            font-weight: 700;
+            line-height: 1.5;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(0, 128, 55, 0.3);
+            text-shadow: 0 0 20px rgba(0, 255, 106, 0.2);
+        }
+        
+        .option {
+            margin: 15px 0;
+            padding: 0;
+            background: transparent;
+            border-radius: 0;
+        }
+        
+        .option label {
+            display: flex;
+            align-items: center;
+            padding: 18px 24px;
+            background: rgba(26, 32, 53, 0.6);
+            border: 2px solid rgba(0, 128, 55, 0.25);
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            font-size: 16px;
+            font-weight: 500;
+            color: #b8e6d5;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .option label::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0, 128, 55, 0.15), rgba(0, 255, 106, 0.08));
+            transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 0;
+        }
+        
+        .option label:hover {
+            border-color: #008037;
+            transform: translateX(4px);
+            box-shadow: 0 8px 20px rgba(0, 128, 55, 0.3), 0 0 30px rgba(0, 128, 55, 0.2);
+            color: #00ff6a;
+        }
+        
+        .option label:hover::before {
+            width: 100%;
+        }
+        
+        .option input[type="radio"] {
+            width: 22px;
+            height: 22px;
+            margin-right: 15px;
+            cursor: pointer;
+            accent-color: #008037;
+            position: relative;
+            z-index: 1;
+            filter: drop-shadow(0 0 4px rgba(0, 128, 55, 0.5));
+        }
+        
+        .option input[type="radio"]:checked + strong,
+        .option input[type="radio"]:checked ~ * {
+            color: #00ff6a;
+            text-shadow: 0 0 10px rgba(0, 255, 106, 0.3);
+        }
+        
+        .option label strong {
+            margin-right: 10px;
+            font-weight: 700;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .option label span {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .button {
+            padding: 18px 40px;
+            background: linear-gradient(135deg, #008037 0%, #00ff6a 100%);
+            color: #000;
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: 700;
+            margin: 15px 10px 15px 0;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 
+                0 10px 30px rgba(0, 128, 55, 0.5),
+                0 0 40px rgba(0, 255, 106, 0.3),
+                0 0 0 1px rgba(255, 255, 255, 0.2) inset;
+            position: relative;
+            overflow: hidden;
+            animation: buttonGlow 2s ease-in-out infinite;
+        }
+        
+        @keyframes buttonGlow {
+            0%, 100% { box-shadow: 0 10px 30px rgba(0, 128, 55, 0.5), 0 0 40px rgba(0, 255, 106, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.2) inset; }
+            50% { box-shadow: 0 10px 30px rgba(0, 128, 55, 0.7), 0 0 60px rgba(0, 255, 106, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.3) inset; }
+        }
+        
+        .button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+        
+        .button:hover::before {
+            left: 100%;
+        }
+        
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 
+                0 15px 40px rgba(0, 128, 55, 0.7),
+                0 0 60px rgba(0, 255, 106, 0.6),
+                0 0 0 1px rgba(255, 255, 255, 0.3) inset;
+        }
+        
+        .button:active {
+            transform: translateY(0);
+        }
+        
+        .fullscreen-warning {
+            background: linear-gradient(135deg, rgba(0, 128, 55, 0.3), rgba(0, 128, 55, 0.2));
+            backdrop-filter: blur(20px);
+            color: #00ff6a;
+            padding: 20px 30px;
+            margin-bottom: 30px;
+            border-radius: 16px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 16px;
+            box-shadow: 0 10px 30px rgba(0, 128, 55, 0.4), 0 0 40px rgba(0, 255, 106, 0.2);
+            border: 1px solid rgba(0, 128, 55, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            animation: pulseWarning 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulseWarning {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+        
+        /* AI Proctoring Webcam */
+        .proctor-container {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            z-index: 9999;
+            background: rgba(16, 20, 35, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 15px;
+            border-radius: 20px;
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.6),
+                0 0 0 1px rgba(0, 128, 55, 0.4) inset,
+                0 0 40px rgba(0, 128, 55, 0.3);
+            border: 1px solid rgba(0, 128, 55, 0.5);
+            animation: slideInRight 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        #webcam {
+            width: 220px;
+            height: 165px;
+            border-radius: 12px;
+            border: 3px solid #008037;
+            object-fit: cover;
+            box-shadow: 0 0 20px rgba(0, 128, 55, 0.3);
+        }
+        
+        .proctor-status {
+            margin-top: 10px;
+            font-size: 13px;
+            color: #00ff6a;
+            text-align: center;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            text-shadow: 0 0 10px rgba(0, 255, 106, 0.5);
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #00ff6a;
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+            box-shadow: 0 0 10px rgba(0, 255, 106, 0.8);
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.3);
+                opacity: 0.7;
+            }
+        }
+        
+        .alert-box {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            background: linear-gradient(135deg, rgba(16, 20, 35, 0.98), rgba(26, 32, 53, 0.98));
+            backdrop-filter: blur(20px);
+            color: #ff6b6b;
+            padding: 30px 50px;
+            border-radius: 20px;
+            box-shadow: 
+                0 20px 60px rgba(239, 68, 68, 0.5),
+                0 0 0 1px rgba(239, 68, 68, 0.4) inset,
+                0 0 40px rgba(239, 68, 68, 0.3);
+            z-index: 10000;
+            display: none;
+            font-weight: 700;
+            font-size: 18px;
+            text-align: center;
+            border: 1px solid rgba(239, 68, 68, 0.5);
+            animation: alertPop 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            text-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
+        }
+        
+        @keyframes alertPop {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.8);
+            }
+            100% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+        /* Video Recording Styles */
+        .video-recording-container {
+            background: linear-gradient(135deg, rgba(16, 20, 35, 0.7), rgba(26, 32, 53, 0.5));
+            border-radius: 20px;
+            padding: 35px;
+            margin: 25px 0;
+            border: 2px solid rgba(0, 128, 55, 0.3);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 40px rgba(0, 128, 55, 0.2);
+        }
+        
+        .video-preview-area {
+            position: relative;
+            background: linear-gradient(135deg, rgba(10, 14, 39, 0.9), rgba(16, 20, 35, 0.9));
+            border-radius: 16px;
+            overflow: hidden;
+            margin: 25px 0;
+            max-width: 720px;
+            margin-left: auto;
+            margin-right: auto;
+            min-height: 405px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.6),
+                0 0 0 1px rgba(0, 128, 55, 0.3) inset,
+                0 0 40px rgba(0, 128, 55, 0.2);
+            border: 2px solid rgba(0, 128, 55, 0.4);
+        }
+        
+        .video-preview-area video {
+            width: 100%;
+            display: block;
+        }
+        
+        .video-preview-area .loading-camera {
+            position: absolute;
+            color: #b8e6d5;
+            font-size: 18px;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .video-preview-area .loading-camera svg {
+            animation: spin 2s linear infinite;
+            filter: drop-shadow(0 0 10px rgba(0, 255, 106, 0.6));
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .recording-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 25px 0;
+            flex-wrap: wrap;
+        }
+        
+        .recording-controls button {
+            padding: 15px 28px;
+            border: none;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .recording-controls button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        .recording-controls button:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        
+        .btn-start-recording {
+            background: linear-gradient(135deg, #008037, #00ff6a);
+            color: #000;
+        }
+        
+        .btn-start-recording:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(0, 128, 55, 0.5), 0 0 40px rgba(0, 255, 106, 0.4);
+        }
+        
+        .btn-stop-recording {
+            background: linear-gradient(135deg, #dc2626, #991b1b);
+            color: white;
+        }
+        
+        .btn-stop-recording:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(220, 38, 38, 0.5), 0 0 30px rgba(239, 68, 68, 0.3);
+        }
+        
+        .btn-play-preview {
+            background: linear-gradient(135deg, rgba(0, 128, 55, 0.8), rgba(0, 255, 106, 0.6));
+            color: white;
+            border: 1px solid rgba(0, 128, 55, 0.5);
+        }
+        
+        .btn-play-preview:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(0, 128, 55, 0.4), 0 0 30px rgba(0, 255, 106, 0.3);
+        }
+        
+        .btn-retry {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.8), rgba(217, 119, 6, 0.8));
+            color: white;
+            border: 1px solid rgba(245, 158, 11, 0.5);
+        }
+        
+        .btn-retry:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(245, 158, 11, 0.4), 0 0 30px rgba(245, 158, 11, 0.3);
+        }
+        
+        .btn-submit-video {
+            background: linear-gradient(135deg, #008037, #00ff6a);
+            color: #000;
+            font-size: 18px;
+            padding: 16px 32px;
+        }
+        
+        .btn-submit-video:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(0, 128, 55, 0.5), 0 0 50px rgba(0, 255, 106, 0.5);
+        }
+        
+        .recording-indicator {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: linear-gradient(135deg, rgba(220, 38, 38, 0.95), rgba(153, 27, 27, 0.95));
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 10px 18px;
+            border-radius: 25px;
+            font-weight: 700;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 8px 20px rgba(220, 38, 38, 0.6), 0 0 30px rgba(239, 68, 68, 0.4);
+            border: 1px solid rgba(239, 68, 68, 0.5);
+            font-size: 14px;
+        }
+        
+        .recording-indicator.active {
+            display: flex !important;
+            animation: slideInLeft 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .recording-indicator .pulse {
+            width: 14px;
+            height: 14px;
+            background: white;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+        
+        .timer-display {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(10, 14, 39, 0.95);
+            backdrop-filter: blur(10px);
+            color: #00ff6a;
+            padding: 10px 18px;
+            border-radius: 25px;
+            font-weight: 700;
+            font-family: 'Century Gothic', 'Futura', monospace;
+            font-size: 20px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6), 0 0 30px rgba(0, 128, 55, 0.4);
+            border: 1px solid rgba(0, 128, 55, 0.5);
+            letter-spacing: 1px;
+            text-shadow: 0 0 10px rgba(0, 255, 106, 0.5);
+        }
+        
+        .attempt-info {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(217, 119, 6, 0.1));
+            border-left: 4px solid #f59e0b;
+            padding: 18px 24px;
+            margin: 20px 0;
+            border-radius: 12px;
+            font-weight: 600;
+            color: #fbbf24;
+            font-size: 15px;
+        }
+        
+        .attempt-info strong {
+            color: #fcd34d;
+            font-weight: 700;
+        }
+        
+        .video-instructions {
+            background: linear-gradient(135deg, rgba(0, 128, 55, 0.15), rgba(0, 255, 106, 0.1));
+            border-left: 4px solid #008037;
+            padding: 18px 24px;
+            margin: 20px 0;
+            border-radius: 12px;
+            color: #b8e6d5;
+            font-weight: 600;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+        
+        .video-instructions strong {
+            color: #00ff6a;
+            font-weight: 700;
+        }
+        
+        .upload-progress {
+            display: none;
+            margin: 25px 0;
+        }
+        
+        .upload-progress .progress-bar {
+            width: 100%;
+            height: 40px;
+            background: linear-gradient(135deg, rgba(26, 32, 53, 0.6), rgba(16, 20, 35, 0.8));
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5) inset;
+            border: 2px solid rgba(0, 128, 55, 0.3);
+        }
+        
+        .upload-progress .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #008037, #00ff6a);
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000;
+            font-weight: 700;
+            font-size: 16px;
+            box-shadow: 0 0 20px rgba(0, 255, 106, 0.6);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .upload-progress .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 1.5s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        /* Start Exam Overlay */
+        .start-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(10, 14, 39, 0.98), rgba(0, 128, 55, 0.15));
+            backdrop-filter: blur(40px);
+            z-index: 99999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.6s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .start-box {
+            background: rgba(16, 20, 35, 0.95);
+            backdrop-filter: blur(30px);
+            padding: 50px;
+            border-radius: 28px;
+            text-align: center;
+            max-width: 600px;
+            box-shadow: 
+                0 30px 80px rgba(0, 0, 0, 0.8),
+                0 0 0 1px rgba(0, 128, 55, 0.4) inset,
+                0 0 60px rgba(0, 128, 55, 0.3);
+            border: 1px solid rgba(0, 128, 55, 0.5);
+            animation: scaleIn 0.6s cubic-bezier(0.16, 1, 0.3, 1), pulseGlowBox 3s ease-in-out infinite;
+        }
+        
+        @keyframes pulseGlowBox {
+            0%, 100% { box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(0, 128, 55, 0.4) inset, 0 0 60px rgba(0, 128, 55, 0.3); }
+            50% { box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(0, 128, 55, 0.6) inset, 0 0 80px rgba(0, 128, 55, 0.5); }
+        }
+        
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        .start-box h2 {
+            color: #e0f2e9;
+            margin-bottom: 25px;
+            font-size: 32px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #00ff6a, #008037);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 0 20px rgba(0, 255, 106, 0.4));
+        }
+        
+        .start-box p {
+            color: #b8e6d5;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        .start-box ul {
+            text-align: left;
+            margin: 30px 0;
+            line-height: 2;
+            list-style: none;
+            padding: 0;
+        }
+        
+        .start-box ul li {
+            padding: 16px 20px 16px 60px;
+            margin: 12px 0;
+            background: rgba(26, 32, 53, 0.6);
+            border-radius: 14px;
+            color: #b8e6d5;
+            font-weight: 600;
+            font-size: 15px;
+            border-left: 4px solid #008037;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            text-align: left;
+        }
+        
+        .start-box ul li svg {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 24px;
+            height: 24px;
+            fill: #00ff6a;
+            filter: drop-shadow(0 0 8px rgba(0, 255, 106, 0.5));
+        }
+        
+        .start-box ul li:hover {
+            transform: translateX(8px);
+            background: rgba(0, 128, 55, 0.2);
+            border-left-color: #00ff6a;
+            box-shadow: 0 8px 20px rgba(0, 128, 55, 0.3);
+        }
+        
+        .start-btn {
+            padding: 18px 45px;
+            background: linear-gradient(135deg, #008037 0%, #00ff6a 100%);
+            color: #000;
+            border: none;
+            border-radius: 16px;
+            font-size: 20px;
+            font-weight: 800;
+            cursor: pointer;
+            margin-top: 30px;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 
+                0 15px 40px rgba(0, 128, 55, 0.6),
+                0 0 60px rgba(0, 255, 106, 0.4),
+                0 0 0 1px rgba(255, 255, 255, 0.2) inset;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .start-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+        
+        .start-btn:hover::before {
+            left: 100%;
+        }
+        
+        .start-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 
+                0 20px 50px rgba(0, 128, 55, 0.8),
+                0 0 80px rgba(0, 255, 106, 0.6),
+                0 0 0 1px rgba(255, 255, 255, 0.3) inset;
+        }
+        
+        .start-btn:active {
+            transform: translateY(-1px);
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 15px;
+            }
+            
+            .exam-header {
+                padding: 30px 25px;
+                border-radius: 20px;
+            }
+            
+            .exam-title {
+                font-size: 32px;
+            }
+            
+            .question-box {
+                padding: 30px 25px;
+                border-radius: 20px;
+            }
+            
+            .proctor-container {
+                top: 15px;
+                right: 15px;
+                padding: 10px;
+            }
+            
+            #webcam {
+                width: 160px;
+                height: 120px;
+            }
+            
+            .start-box {
+                padding: 40px 30px;
+                max-width: 90%;
+            }
+            
+            .video-preview-area {
+                max-width: 100%;
+            }
+            
+            .recording-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .recording-controls button {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+        
+        /* Teacher Notification Popup */
+        .teacher-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #008037 0%, #00ff6a 100%);
+            color: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 128, 55, 0.4),
+                        0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 280px;
+            opacity: 0;
+            transform: translateX(400px);
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            pointer-events: none;
+            backdrop-filter: blur(10px);
+        }
+        
+        .teacher-notification.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .teacher-notification .icon {
+            width: 32px;
+            height: 32px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+            }
+        }
+        
+        .teacher-notification .content {
+            flex: 1;
+        }
+        
+        .teacher-notification .title {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+        
+        .teacher-notification .message {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+        
+        /* Timer Animation */
+        @keyframes timerPulse {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(255, 107, 53, 0.7);
+            }
+            50% {
+                box-shadow: 0 0 0 15px rgba(255, 107, 53, 0);
+            }
+        }
+        
+        @keyframes timerUrgent {
+            0%, 100% {
+                box-shadow: 0 0 20px rgba(255, 0, 0, 0.8);
+                border-color: rgba(255, 0, 0, 0.8);
+            }
+            50% {
+                box-shadow: 0 0 40px rgba(255, 0, 0, 1);
+                border-color: rgba(255, 0, 0, 1);
+            }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-50%) translateY(-10px); }
+            20%, 40%, 60%, 80% { transform: translateX(-50%) translateY(10px); }
+        }
+        
+        @keyframes fadeOut {
+            from { opacity: 1; transform: translateX(-50%) translateY(0); }
+            to { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+        }
+    </style>
+    <script nonce="{{ csp_nonce() }}">
+        let examForm;
+        let fullscreenEnabled = false;
+        let socket;
+        let videoStream;
+        let examStarted = false;
+        const examId = {{ exam[0] }};
+        let notificationInterval = null;
+        let examTimerInterval = null;
+        let timeRemaining = {% if exam|length > 3 and exam[3] %}{{ exam[3] * 60 }}{% else %}null{% endif %}; // Time in seconds
+        let tabSwitchCount = 0;  // Track tab switches
+        const MAX_TAB_SWITCHES = 3;  // Maximum allowed tab switches
+        let lastTabSwitchTime = 0;  // Timestamp of last tab switch
+        const TAB_SWITCH_COOLDOWN = 2000;  // 2 second cooldown between tab switches
+        let isShowingAlert = false;  // Flag to prevent counting during alerts
+
+        // Teacher notification messages with SVG icons
+        const notificationMessages = [
+            { 
+                title: 'Teacher Monitoring', 
+                message: 'Exam is being actively proctored',
+                icon: '<svg width="20" height="20" fill="white" viewBox="0 0 16 16"><path d="M11 5a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM8 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm.256 7a4.474 4.474 0 0 1-.229-1.004H3c.001-.246.154-.986.832-1.664C4.484 10.68 5.711 10 8 10c.26 0 .507.009.740.025.226-.341.496-.65.804-.918C9.077 9.038 8.564 9 8 9c-5 0-6 3-6 4s1 1 1 1h5.256Zm3.63-4.54c.18-.613 1.048-.613 1.229 0l.043.148a.64.64 0 0 0 .921.382l.136-.074c.561-.306 1.175.308.87.869l-.075.136a.64.64 0 0 0 .382.92l.149.045c.612.18.612 1.048 0 1.229l-.15.043a.64.64 0 0 0-.38.921l.074.136c.305.561-.309 1.175-.87.87l-.136-.075a.64.64 0 0 0-.92.382l-.045.149c-.18.612-1.048.612-1.229 0l-.043-.15a.64.64 0 0 0-.921-.38l-.136.074c-.561.305-1.175-.309-.87-.87l.075-.136a.64.64 0 0 0-.382-.92l-.148-.045c-.613-.18-.613-1.048 0-1.229l.148-.043a.64.64 0 0 0 .382-.921l-.074-.136c-.306-.561.308-1.175.869-.87l.136.075a.64.64 0 0 0 .92-.382l.045-.148ZM14 12.5a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0Z"/></svg>'
+            },
+            { 
+                title: 'Video Recording', 
+                message: 'Your screen is being recorded',
+                icon: '<svg width="20" height="20" fill="white" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M0 5a2 2 0 0 1 2-2h7.5a2 2 0 0 1 1.983 1.738l3.11-1.382A1 1 0 0 1 16 4.269v7.462a1 1 0 0 1-1.406.913l-3.111-1.382A2 2 0 0 1 9.5 13H2a2 2 0 0 1-2-2V5zm11.5 5.175 3.5 1.556V4.269l-3.5 1.556v4.35zM2 4a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h7.5a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1H2z"/></svg>'
+            },
+            { 
+                title: 'Stay Focused', 
+                message: 'Teacher is watching your activity',
+                icon: '<svg width="20" height="20" fill="white" viewBox="0 0 16 16"><path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z"/><path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z"/></svg>'
+            },
+            { 
+                title: 'Activity Tracking', 
+                message: 'All actions are being monitored',
+                icon: '<svg width="20" height="20" fill="white" viewBox="0 0 16 16"><path d="M8.5 5.5a.5.5 0 0 0-1 0v3.362l-1.429 2.38a.5.5 0 1 0 .858.515l1.5-2.5A.5.5 0 0 0 8.5 9V5.5z"/><path d="M6.5 0a.5.5 0 0 0 0 1H7v1.07a7.001 7.001 0 0 0-3.273 12.474l-.602.602a.5.5 0 0 0 .707.708l.746-.746A6.97 6.97 0 0 0 8 16a6.97 6.97 0 0 0 3.422-.892l.746.746a.5.5 0 0 0 .707-.708l-.601-.602A7.001 7.001 0 0 0 9 2.07V1h.5a.5.5 0 0 0 0-1h-3zm1.038 3.018a6.093 6.093 0 0 1 .924 0 6 6 0 1 1-.924 0zM0 3.5c0 .753.333 1.429.86 1.887A8.035 8.035 0 0 1 4.387 1.86 2.5 2.5 0 0 0 0 3.5zM13.5 1c-.753 0-1.429.333-1.887.86a8.035 8.035 0 0 1 3.527 3.527A2.5 2.5 0 0 0 13.5 1z"/></svg>'
+            },
+            { 
+                title: 'Teacher Observing', 
+                message: 'Do not switch tabs or windows',
+                icon: '<svg width="20" height="20" fill="white" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z"/></svg>'
+            },
+            { 
+                title: 'Performance Tracking', 
+                message: 'Your exam progress is monitored',
+                icon: '<svg width="20" height="20" fill="white" viewBox="0 0 16 16"><path d="M4 11H2v3h2v-3zm5-4H7v7h2V7zm5-5v12h-2V2h2zm-2-1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1h-2zM6 7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7zm-5 4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-3z"/></svg>'
+            },
+            { 
+                title: 'Stay on Task', 
+                message: 'Teacher can see your screen',
+                icon: '<svg width="20" height="20" fill="white" viewBox="0 0 16 16"><path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM3.102 4l1.313 7h8.17l1.313-7H3.102zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/></svg>'
+            },
+            { 
+                title: 'Time Tracking', 
+                message: 'Duration being monitored',
+                icon: '<svg width="20" height="20" fill="white" viewBox="0 0 16 16"><path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"/><path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"/></svg>'
+            }
+        ];
+        let currentMessageIndex = 0;
+
+        function showTeacherNotification() {
+            const notification = document.getElementById('teacherNotification');
+            const iconElement = notification.querySelector('.icon');
+            const titleElement = document.getElementById('notificationTitle');
+            const messageElement = document.getElementById('notificationMessage');
+            
+            // Get current message
+            const currentMsg = notificationMessages[currentMessageIndex];
+            
+            // Update icon
+            iconElement.innerHTML = currentMsg.icon;
+            
+            // Update text
+            titleElement.textContent = currentMsg.title;
+            messageElement.textContent = currentMsg.message;
+            
+            // Show notification
+            notification.classList.add('show');
+            
+            // Hide after 3 seconds
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+            
+            // Move to next message
+            currentMessageIndex = (currentMessageIndex + 1) % notificationMessages.length;
+        }
+
+        function startNotifications() {
+            // Show first notification immediately
+            setTimeout(() => {
+                showTeacherNotification();
+            }, 2000);
+            
+            // Then show every 5.5 seconds
+            notificationInterval = setInterval(showTeacherNotification, 5500);
+        }
+
+        function stopNotifications() {
+            if (notificationInterval) {
+                clearInterval(notificationInterval);
+                notificationInterval = null;
+            }
+        }
+
+        // Timer functions
+        function startExamTimer() {
+            if (timeRemaining === null) {
+                console.log('No time limit set for this exam');
+                return;
+            }
+            
+            console.log('Starting exam timer:', timeRemaining, 'seconds');
+            
+            examTimerInterval = setInterval(() => {
+                timeRemaining--;
+                updateTimerDisplay();
+                
+                // Auto-submit when time expires
+                if (timeRemaining <= 0) {
+                    clearInterval(examTimerInterval);
+                    alert('Time is up! Your exam will be submitted automatically.');
+                    stopNotifications();
+                    // Call submission handler directly
+                    handleExamSubmission();
+                }
+                
+                // Warning at 5 minutes
+                if (timeRemaining === 300) {
+                    alert('⚠️ Warning: Only 5 minutes remaining!');
+                }
+                
+                // Warning at 1 minute
+                if (timeRemaining === 60) {
+                    alert('⚠️ Warning: Only 1 minute remaining!');
+                }
+                
+                // Urgent animation when less than 2 minutes
+                if (timeRemaining <= 120) {
+                    const timerDisplay = document.getElementById('timer-display');
+                    if (timerDisplay) {
+                        timerDisplay.style.animation = 'timerUrgent 1s infinite';
+                        timerDisplay.style.background = 'linear-gradient(135deg, rgba(255, 0, 0, 0.3), rgba(255, 68, 68, 0.3))';
+                    }
+                }
+            }, 1000);
+        }
+        
+        function updateTimerDisplay() {
+            const timeElement = document.getElementById('time-remaining');
+            if (!timeElement) return;
+            
+            const minutes = Math.floor(timeRemaining / 60);
+            const seconds = timeRemaining % 60;
+            timeElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            
+            // Change color based on time remaining
+            const timerText = document.getElementById('timer-text');
+            if (timeRemaining <= 120) {
+                timeElement.style.color = '#ff0000';
+                if (timerText) timerText.style.color = '#ff0000';
+            } else if (timeRemaining <= 300) {
+                timeElement.style.color = '#ff6b35';
+                if (timerText) timerText.style.color = '#ff6b35';
+            }
+        }
+
+        window.onload = function() {
+            examForm = document.getElementById('exam-form');
+            // Don't auto-start - wait for user to click button
+        };
+
+        async function startExam() {
+            // Hide the start overlay
+            document.getElementById('start-overlay').style.display = 'none';
+            
+            // Enter fullscreen
+            await enterFullscreen();
+            
+            // Initialize proctoring
+            await initProctoring();
+            
+            examStarted = true;
+            
+            // Start teacher notifications
+            startNotifications();
+            
+            // Start exam timer if time limit is set
+            if (timeRemaining !== null) {
+                startExamTimer();
+            }
+            
+            // Initialize video recorders for video questions
+            setTimeout(() => {
+                initializeVideoRecorders();
+            }, 1000);
+        }
+
+        async function enterFullscreen() {
+            const elem = document.documentElement;
+            try {
+                if (elem.requestFullscreen) {
+                    await elem.requestFullscreen();
+                    fullscreenEnabled = true;
+                } else if (elem.webkitRequestFullscreen) { /* Safari */
+                    await elem.webkitRequestFullscreen();
+                    fullscreenEnabled = true;
+                } else if (elem.msRequestFullscreen) { /* IE11 */
+                    await elem.msRequestFullscreen();
+                    fullscreenEnabled = true;
+                } else if (elem.mozRequestFullScreen) { /* Firefox */
+                    await elem.mozRequestFullScreen();
+                    fullscreenEnabled = true;
+                }
+            } catch (err) {
+                alert('Fullscreen is required to take this exam. Please allow fullscreen and try again.');
+                console.error('Fullscreen error:', err);
+                document.getElementById('start-overlay').style.display = 'flex';
+            }
+        }
+
+        // AI Proctoring - Initialize webcam and Socket.IO
+        async function initProctoring() {
+            try {
+                // Connect to Socket.IO server
+                socket = io();
+
+                // Request webcam access
+                videoStream = await navigator.mediaDevices.getUserMedia({ video: true });
+                const video = document.getElementById('webcam');
+                video.srcObject = videoStream;
+                document.querySelector('.proctor-status').innerHTML = '<span class="status-dot"></span> ✓ Proctoring Active';
+
+                // Capture frames every 2 seconds for more accurate detection
+                // More frequent sampling reduces false positives from temporary occlusions
+                setInterval(() => {
+                    captureFrame();
+                }, 2000);
+
+                // Listen for proctor alerts from server
+                socket.on('proctor_alert', (data) => {
+                    showAlert(data.message, data.type);
+                });
+                
+                // Listen for positive compliance feedback
+                socket.on('proctor_feedback', (data) => {
+                    if (data.type === 'success') {
+                        showTemporaryFeedback(data.message);
+                    }
+                });
+
+            } catch (err) {
+                alert('Camera access is required for this exam. Please enable camera and refresh.');
+                console.error('Webcam error:', err);
+            }
+        }
+
+        function captureFrame() {
+            const video = document.getElementById('webcam');
+            
+            // Ensure video is ready
+            if (video.readyState !== video.HAVE_ENOUGH_DATA) {
+                return;
+            }
+            
+            const canvas = document.createElement('canvas');
+            // Set optimal resolution for face detection (640x480 is standard)
+            const targetWidth = 640;
+            const targetHeight = 480;
+            
+            canvas.width = targetWidth;
+            canvas.height = targetHeight;
+            
+            const ctx = canvas.getContext('2d');
+            // Draw with better quality scaling
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+            ctx.drawImage(video, 0, 0, targetWidth, targetHeight);
+            
+            // Convert to base64 with good quality (0.85 balance between quality and size)
+            const frameData = canvas.toDataURL('image/jpeg', 0.85);
+            socket.emit('proctor_frame', {
+                frame: frameData,
+                exam_id: examId
+            });
+        }
+
+        function showAlert(message, type) {
+            const alertBox = document.getElementById('alert-box');
+            alertBox.textContent = message;
+            alertBox.style.display = 'block';
+            
+            if (type === 'danger') {
+                alertBox.style.background = '#f8d7da';
+                alertBox.style.color = '#721c24';
+                alertBox.style.border = '2px solid #f5c6cb';
+            } else {
+                alertBox.style.background = '#fff3cd';
+                alertBox.style.color = '#856404';
+                alertBox.style.border = '2px solid #ffc107';
+            }
+            
+            setTimeout(() => {
+                alertBox.style.display = 'none';
+            }, 5000);  // Increased to 5 seconds for better visibility
+        }
+        
+        function showTemporaryFeedback(message) {
+            // Create temporary success feedback that doesn't interrupt
+            const feedback = document.createElement('div');
+            feedback.textContent = message;
+            feedback.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                background: linear-gradient(135deg, #00c853, #00e676);
+                color: white;
+                padding: 12px 24px;
+                border-radius: 8px;
+                font-size: 14px;
+                font-weight: 600;
+                box-shadow: 0 4px 15px rgba(0, 200, 83, 0.3);
+                z-index: 9999;
+                animation: slideIn 0.3s ease-out;
+            `;
+            document.body.appendChild(feedback);
+            
+            setTimeout(() => {
+                feedback.style.animation = 'slideOut 0.3s ease-in';
+                setTimeout(() => feedback.remove(), 300);
+            }, 3000);
+        }
+
+        // Detect tab switches with 3-strike system
+        document.addEventListener('visibilitychange', () => {
+            const now = Date.now();
+            const timeSinceLastSwitch = now - lastTabSwitchTime;
+            
+            console.log('Visibility change detected:', {
+                hidden: document.hidden,
+                examStarted: examStarted,
+                currentCount: tabSwitchCount,
+                maxAllowed: MAX_TAB_SWITCHES,
+                timeSinceLastSwitch: timeSinceLastSwitch,
+                cooldownPeriod: TAB_SWITCH_COOLDOWN,
+                isShowingAlert: isShowingAlert
+            });
+            
+            // Only count tab switches when:
+            // 1. Page becomes hidden (tab switch away)
+            // 2. Exam has started
+            // 3. Cooldown period has passed
+            // 4. Not currently showing an alert (prevents alert dialogs from being counted)
+            if (document.hidden && examStarted && timeSinceLastSwitch > TAB_SWITCH_COOLDOWN && !isShowingAlert) {
+                lastTabSwitchTime = now;
+                tabSwitchCount++;
+                console.log(`Tab switch #${tabSwitchCount} detected!`);
+                
+                // Send proctor event
+                if (socket) {
+                    socket.emit('proctor_event', {
+                        exam_id: examId,
+                        event_type: 'tab_switch',
+                        description: `Tab switch detected (${tabSwitchCount}/${MAX_TAB_SWITCHES})`
+                    });
+                }
+                
+                // Show warning based on violation count
+                if (tabSwitchCount === 1) {
+                    console.log('Showing WARNING #1');
+                    showTabSwitchWarning(tabSwitchCount);
+                    isShowingAlert = true;
+                    alert('⚠️ WARNING #1: Tab switching detected!\n\nYou have ' + (MAX_TAB_SWITCHES - tabSwitchCount) + ' more chances.\nAfter 3 violations, your exam will be auto-submitted.');
+                    isShowingAlert = false;
+                } else if (tabSwitchCount === 2) {
+                    console.log('Showing WARNING #2');
+                    showTabSwitchWarning(tabSwitchCount);
+                    isShowingAlert = true;
+                    alert('⚠️ WARNING #2: Second tab switch detected!\n\nThis is your LAST chance!\nOne more violation will auto-submit your exam.');
+                    isShowingAlert = false;
+                } else if (tabSwitchCount >= MAX_TAB_SWITCHES) {
+                    console.log('Maximum violations reached - AUTO-SUBMITTING');
+                    showTabSwitchWarning(tabSwitchCount);
+                    
+                    // Stop notifications and timer
+                    stopNotifications();
+                    if (examTimerInterval) {
+                        clearInterval(examTimerInterval);
+                    }
+                    
+                    // Prevent further tab switch counting
+                    examStarted = false;
+                    
+                    // Show alert and trigger submit
+                    isShowingAlert = true;
+                    alert('❌ EXAM AUTO-SUBMITTED!\n\nYou exceeded the maximum allowed tab switches (3).\nYour exam is being submitted now.');
+                    isShowingAlert = false;
+                    
+                    // Call the submission handler directly
+                    console.log('Calling handleExamSubmission directly...');
+                    handleExamSubmission();
+                }
+            } else {
+                console.log('Tab visibility change ignored:', {
+                    reason: !document.hidden ? 'Tab became visible' : 
+                            !examStarted ? 'Exam not started yet' :
+                            isShowingAlert ? 'Alert is showing' :
+                            'Within cooldown period'
+                });
+            }
+        });
+        
+        function showTabSwitchWarning(count) {
+            // Update counter display
+            const counterDisplay = document.getElementById('tabSwitchDisplay');
+            const counterDiv = document.getElementById('tabSwitchCounter');
+            if (counterDisplay) {
+                counterDisplay.textContent = `${count} / ${MAX_TAB_SWITCHES}`;
+                
+                // Change color based on violations
+                if (count === 1) {
+                    counterDiv.style.background = 'linear-gradient(135deg, rgba(255, 193, 7, 0.2), rgba(255, 152, 0, 0.2))';
+                    counterDiv.style.borderColor = 'rgba(255, 193, 7, 0.6)';
+                } else if (count === 2) {
+                    counterDiv.style.background = 'linear-gradient(135deg, rgba(255, 87, 34, 0.2), rgba(244, 67, 54, 0.2))';
+                    counterDiv.style.borderColor = 'rgba(255, 87, 34, 0.8)';
+                } else if (count >= 3) {
+                    counterDiv.style.background = 'linear-gradient(135deg, rgba(255, 0, 0, 0.3), rgba(139, 0, 0, 0.3))';
+                    counterDiv.style.borderColor = 'rgba(255, 0, 0, 1)';
+                    counterDiv.style.animation = 'shake 0.5s infinite';
+                }
+            }
+            
+            const warningDiv = document.createElement('div');
+            warningDiv.style.cssText = `
+                position: fixed;
+                top: 80px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: linear-gradient(135deg, #ff4444, #cc0000);
+                color: white;
+                padding: 20px 30px;
+                border-radius: 15px;
+                box-shadow: 0 10px 40px rgba(255, 0, 0, 0.5);
+                z-index: 100000;
+                font-size: 18px;
+                font-weight: 700;
+                text-align: center;
+                animation: shake 0.5s;
+                border: 3px solid #fff;
+            `;
+            
+            const remainingChances = MAX_TAB_SWITCHES - count;
+            warningDiv.innerHTML = `
+                <div style="font-size: 40px; margin-bottom: 10px;">⚠️</div>
+                <div style="font-size: 24px; margin-bottom: 10px;">TAB SWITCH DETECTED!</div>
+                <div style="font-size: 16px; opacity: 0.9;">Warning ${count} of ${MAX_TAB_SWITCHES}</div>
+                <div style="font-size: 18px; margin-top: 10px; padding-top: 10px; border-top: 2px solid rgba(255,255,255,0.3);">
+                    ${remainingChances > 0 ? `${remainingChances} chance${remainingChances > 1 ? 's' : ''} remaining` : 'EXAM WILL BE SUBMITTED!'}
+                </div>
+            `;
+            
+            document.body.appendChild(warningDiv);
+            
+            setTimeout(() => {
+                warningDiv.style.animation = 'fadeOut 0.5s';
+                setTimeout(() => warningDiv.remove(), 500);
+            }, 4000);
+        }
+
+        // Detect fullscreen exit and auto-submit
+        document.addEventListener('fullscreenchange', function() {
+            if (!document.fullscreenElement && fullscreenEnabled && examStarted) {
+                autoSubmitExam();
+            }
+        });
+
+        document.addEventListener('webkitfullscreenchange', function() {
+            if (!document.webkitFullscreenElement && fullscreenEnabled && examStarted) {
+                autoSubmitExam();
+            }
+        });
+
+        document.addEventListener('mozfullscreenchange', function() {
+            if (!document.mozFullScreenElement && fullscreenEnabled && examStarted) {
+                autoSubmitExam();
+            }
+        });
+
+        document.addEventListener('MSFullscreenChange', function() {
+            if (!document.msFullscreenElement && fullscreenEnabled && examStarted) {
+                autoSubmitExam();
+            }
+        });
+
+        // Detect ESC key and auto-submit
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape' && fullscreenEnabled && examStarted) {
+                event.preventDefault();
+                autoSubmitExam();
+            }
+        });
+
+        function autoSubmitExam() {
+            // Only show confirmation on 3rd strike or if they've already violated twice
+            if (tabSwitchCount >= 2) {
+                if (confirm('Exiting fullscreen will auto-submit your exam. Do you want to submit?')) {
+                    // Call submission handler directly
+                    handleExamSubmission();
+                } else {
+                    // Re-enter fullscreen if they cancel
+                    enterFullscreen();
+                }
+            } else {
+                // Before 3rd strike, just warn and re-enter fullscreen
+                alert('⚠️ WARNING: Exiting fullscreen is not allowed!\n\nYou currently have ' + tabSwitchCount + ' tab switch violation(s).\nStay in fullscreen mode to avoid auto-submission.');
+                enterFullscreen();
+            }
+        }
+
+        // Prevent right-click and common cheating shortcuts
+        document.addEventListener('contextmenu', event => event.preventDefault());
+        document.addEventListener('keydown', function(event) {
+            // Disable F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
+            if (event.keyCode == 123 || 
+                (event.ctrlKey && event.shiftKey && (event.keyCode == 73 || event.keyCode == 74)) ||
+                (event.ctrlKey && event.keyCode == 85)) {
+                event.preventDefault();
+                return false;
+            }
+        });
+
+        // Video Recording Class
+        class VideoRecorder {
+            constructor(questionId, examId, maxAttempts = 2) {
+                console.log('VideoRecorder constructor called for question:', questionId);
+                
+                this.questionId = questionId;
+                this.examId = examId;
+                this.maxAttempts = maxAttempts;
+                this.currentAttempt = 1;
+                this.mediaRecorder = null;
+                this.recordedChunks = [];
+                this.recordedBlob = null;  // Store the final blob for auto-upload
+                this.stream = null;
+                this.recordingStartTime = null;
+                this.recordingDuration = 0;  // Track recording duration
+                this.attemptNumber = 1;  // Track attempt number
+                this.timerInterval = null;
+                
+                // Get DOM elements
+                this.liveVideo = document.getElementById(`liveVideo_${questionId}`);
+                this.playbackVideo = document.getElementById(`playbackVideo_${questionId}`);
+                this.recordingIndicator = document.getElementById(`recordingIndicator_${questionId}`);
+                this.timerDisplay = document.getElementById(`timerDisplay_${questionId}`);
+                this.attemptInfo = document.getElementById(`currentAttempt_${questionId}`);
+                this.loadingCamera = document.getElementById(`loadingCamera_${questionId}`);
+                
+                this.btnStartRecording = document.getElementById(`btnStartRecording_${questionId}`);
+                this.btnStopRecording = document.getElementById(`btnStopRecording_${questionId}`);
+                this.btnPlayPreview = document.getElementById(`btnPlayPreview_${questionId}`);
+                this.btnRetry = document.getElementById(`btnRetry_${questionId}`);
+                this.btnSubmitVideo = document.getElementById(`btnSubmitVideo_${questionId}`);
+                
+                this.uploadProgress = document.getElementById(`uploadProgress_${questionId}`);
+                this.progressFill = document.getElementById(`progressFill_${questionId}`);
+                
+                // Check if all elements are found
+                if (!this.liveVideo) {
+                    console.error('liveVideo element not found for question:', questionId);
+                    return;
+                }
+                if (!this.btnStartRecording) {
+                    console.error('btnStartRecording element not found for question:', questionId);
+                    return;
+                }
+                
+                console.log('All DOM elements found, initializing camera and event listeners');
+                
+                this.initializeCamera();
+                this.attachEventListeners();
+            }
+            
+            async initializeCamera() {
+                try {
+                    // Disable start button until camera is ready
+                    if (this.btnStartRecording) {
+                        this.btnStartRecording.disabled = true;
+                        this.btnStartRecording.textContent = 'Initializing Camera...';
+                    }
+                    
+                    // Request separate camera stream for video recording
+                    this.stream = await navigator.mediaDevices.getUserMedia({ 
+                        video: { 
+                            width: { ideal: 1280 },
+                            height: { ideal: 720 }
+                        }, 
+                        audio: true 
+                    });
+                    this.liveVideo.srcObject = this.stream;
+                    this.liveVideo.style.display = 'block';
+                    this.playbackVideo.style.display = 'none';
+                    
+                    // Hide loading indicator
+                    if (this.loadingCamera) {
+                        this.loadingCamera.style.display = 'none';
+                    }
+                    
+                    // Enable start button once camera is ready
+                    if (this.btnStartRecording) {
+                        this.btnStartRecording.disabled = false;
+                        this.btnStartRecording.innerHTML = '<svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6"/></svg> Start Recording';
+                    }
+                    
+                    console.log('Video recorder camera initialized for question:', this.questionId);
+                } catch (error) {
+                    console.error('Camera error for video recorder:', error);
+                    if (this.btnStartRecording) {
+                        this.btnStartRecording.disabled = true;
+                        this.btnStartRecording.textContent = 'Camera Access Denied';
+                    }
+                    alert('Camera access denied for video question! Please allow camera permissions and refresh the page.');
+                }
+            }
+            
+            attachEventListeners() {
+                console.log('Attaching event listeners for question:', this.questionId);
+                
+                if (this.btnStartRecording) {
+                    this.btnStartRecording.addEventListener('click', () => {
+                        console.log('Start recording button clicked');
+                        this.startRecording();
+                    });
+                }
+                if (this.btnStopRecording) {
+                    this.btnStopRecording.addEventListener('click', () => {
+                        console.log('Stop recording button clicked');
+                        this.stopRecording();
+                    });
+                }
+                if (this.btnPlayPreview) {
+                    this.btnPlayPreview.addEventListener('click', () => {
+                        console.log('Play preview button clicked');
+                        this.playPreview();
+                    });
+                }
+                if (this.btnRetry) {
+                    this.btnRetry.addEventListener('click', () => {
+                        console.log('Retry button clicked');
+                        this.retry();
+                    });
+                }
+                if (this.btnSubmitVideo) {
+                    this.btnSubmitVideo.addEventListener('click', () => {
+                        console.log('Submit video button clicked');
+                        this.submitVideo();
+                    });
+                }
+            }
+            
+            startRecording() {
+                if (!this.stream || !this.stream.active) {
+                    alert('Camera not initialized or not active! Please wait for camera to load or refresh the page.');
+                    console.error('Stream status:', this.stream ? 'exists but not active' : 'null');
+                    return;
+                }
+                
+                console.log('Starting recording with stream:', this.stream.id);
+                this.recordedChunks = [];
+                
+                try {
+                    // Try VP9 codec first, fallback to VP8
+                    let options = { mimeType: 'video/webm;codecs=vp9' };
+                    if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+                        console.warn('VP9 not supported, trying VP8');
+                        options = { mimeType: 'video/webm;codecs=vp8' };
+                        if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+                            console.warn('VP8 not supported, using default');
+                            options = { mimeType: 'video/webm' };
+                        }
+                    }
+                    
+                    this.mediaRecorder = new MediaRecorder(this.stream, options);
+                    console.log('MediaRecorder created with mimeType:', options.mimeType);
+                } catch (error) {
+                    console.error('MediaRecorder creation error:', error);
+                    alert('Failed to create media recorder: ' + error.message);
+                    return;
+                }
+                
+                this.mediaRecorder.ondataavailable = (event) => {
+                    if (event.data.size > 0) {
+                        this.recordedChunks.push(event.data);
+                        console.log('Data chunk received:', event.data.size, 'bytes');
+                    }
+                };
+                
+                this.mediaRecorder.onstop = () => {
+                    console.log('Recording stopped, total chunks:', this.recordedChunks.length);
+                    this.stopTimer();
+                    this.btnStartRecording.style.display = 'none';
+                    this.btnStopRecording.style.display = 'none';
+                    this.btnPlayPreview.style.display = 'inline-flex';
+                    if (this.currentAttempt < this.maxAttempts) {
+                        this.btnRetry.style.display = 'inline-flex';
+                    }
+                    this.btnSubmitVideo.style.display = 'inline-flex';
+                };
+                
+                this.mediaRecorder.onerror = (event) => {
+                    console.error('MediaRecorder error:', event.error);
+                    alert('Recording error: ' + event.error.name);
+                };
+                
+                try {
+                    this.mediaRecorder.start();
+                    this.recordingIndicator.classList.add('active');
+                    this.btnStartRecording.style.display = 'none';
+                    this.btnStopRecording.style.display = 'inline-flex';
+                    this.startTimer();
+                    console.log('Recording started successfully');
+                } catch (error) {
+                    console.error('Start recording error:', error);
+                    alert('Failed to start recording: ' + error.message);
+                }
+            }
+            
+            stopRecording() {
+                if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') {
+                    this.mediaRecorder.stop();
+                    this.recordingIndicator.classList.remove('active');
+                    
+                    // Calculate recording duration
+                    if (this.recordingStartTime) {
+                        this.recordingDuration = Math.floor((Date.now() - this.recordingStartTime) / 1000);
+                        console.log(`Recording duration: ${this.recordingDuration} seconds`);
+                    }
+                    
+                    // Create blob after all chunks are received (in onstop handler)
+                    setTimeout(() => {
+                        if (this.recordedChunks.length > 0) {
+                            this.recordedBlob = new Blob(this.recordedChunks, { type: 'video/webm' });
+                            console.log(`Created recordedBlob: ${this.recordedBlob.size} bytes for question ${this.questionId}`);
+                        }
+                    }, 100);  // Small delay to ensure all chunks are received
+                }
+            }
+            
+            playPreview() {
+                const blob = new Blob(this.recordedChunks, { type: 'video/webm' });
+                const url = URL.createObjectURL(blob);
+                this.playbackVideo.src = url;
+                this.liveVideo.style.display = 'none';
+                this.playbackVideo.style.display = 'block';
+                this.playbackVideo.play();
+            }
+            
+            retry() {
+                if (this.currentAttempt >= this.maxAttempts) {
+                    alert('Maximum attempts reached!');
+                    return;
+                }
+                
+                this.currentAttempt++;
+                this.attemptNumber = this.currentAttempt;  // Update attempt number
+                this.attemptInfo.textContent = this.currentAttempt;
+                this.recordedChunks = [];
+                this.recordedBlob = null;  // Clear old blob
+                
+                this.liveVideo.style.display = 'block';
+                this.playbackVideo.style.display = 'none';
+                this.playbackVideo.src = '';
+                
+                this.btnStartRecording.style.display = 'inline-flex';
+                this.btnStopRecording.style.display = 'none';
+                this.btnPlayPreview.style.display = 'none';
+                this.btnRetry.style.display = 'none';
+                this.btnSubmitVideo.style.display = 'none';
+                
+                if (this.currentAttempt >= this.maxAttempts) {
+                    this.btnRetry.innerHTML = '<svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/></svg>Last Attempt';
+                }
+            }
+            
+            async submitVideo() {
+                if (this.recordedChunks.length === 0) {
+                    alert('Please record a video first!');
+                    return;
+                }
+                
+                const blob = new Blob(this.recordedChunks, { type: 'video/webm' });
+                const formData = new FormData();
+                formData.append('video', blob, `video_q${this.questionId}.webm`);
+                formData.append('exam_id', this.examId);
+                formData.append('question_id', this.questionId);
+                formData.append('attempt_number', this.currentAttempt);
+                formData.append('_csrf_token', '{{ csrf_token() }}');
+                
+                const duration = this.recordingStartTime ? Math.floor((Date.now() - this.recordingStartTime) / 1000) : 0;
+                formData.append('duration', duration);
+                
+                this.uploadProgress.style.display = 'block';
+                this.btnSubmitVideo.disabled = true;
+                this.btnRetry.disabled = true;
+                
+                try {
+                    const xhr = new XMLHttpRequest();
+                    
+                    xhr.upload.addEventListener('progress', (e) => {
+                        if (e.lengthComputable) {
+                            const percentComplete = Math.round((e.loaded / e.total) * 100);
+                            this.progressFill.style.width = percentComplete + '%';
+                            this.progressFill.textContent = percentComplete + '%';
+                        }
+                    });
+                    
+                    xhr.addEventListener('load', () => {
+                        if (xhr.status === 200) {
+                            const response = JSON.parse(xhr.responseText);
+                            if (response.success) {
+                                document.getElementById(`videoSubmitted_${this.questionId}`).value = '1';
+                                this.uploadProgress.style.display = 'none';
+                                alert('Video submitted successfully! ✓');
+                                
+                                // Disable all buttons after successful submission
+                                this.btnStartRecording.disabled = true;
+                                this.btnStopRecording.disabled = true;
+                                this.btnPlayPreview.disabled = false;
+                                this.btnRetry.disabled = true;
+                                this.btnSubmitVideo.disabled = true;
+                                
+                                // Stop camera stream
+                                if (this.stream) {
+                                    this.stream.getTracks().forEach(track => track.stop());
+                                }
+                            } else {
+                                alert('Upload failed: ' + response.message);
+                                this.btnSubmitVideo.disabled = false;
+                                this.btnRetry.disabled = false;
+                            }
+                        } else {
+                            alert('Upload failed! Status: ' + xhr.status);
+                            this.btnSubmitVideo.disabled = false;
+                            this.btnRetry.disabled = false;
+                        }
+                    });
+                    
+                    xhr.addEventListener('error', () => {
+                        alert('Network error during upload!');
+                        this.btnSubmitVideo.disabled = false;
+                        this.btnRetry.disabled = false;
+                        this.uploadProgress.style.display = 'none';
+                    });
+                    
+                    xhr.open('POST', '/upload_video_response');
+                    xhr.send(formData);
+                    
+                } catch (error) {
+                    console.error('Upload error:', error);
+                    alert('Failed to upload video!');
+                    this.btnSubmitVideo.disabled = false;
+                    this.btnRetry.disabled = false;
+                    this.uploadProgress.style.display = 'none';
+                }
+            }
+            
+            startTimer() {
+                this.recordingStartTime = Date.now();
+                this.timerDisplay.style.display = 'block';
+                this.timerDisplay.textContent = '00:00';
+                
+                this.timerInterval = setInterval(() => {
+                    const elapsed = Math.floor((Date.now() - this.recordingStartTime) / 1000);
+                    const minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
+                    const seconds = (elapsed % 60).toString().padStart(2, '0');
+                    this.timerDisplay.textContent = `${minutes}:${seconds}`;
+                }, 1000);
+            }
+            
+            stopTimer() {
+                if (this.timerInterval) {
+                    clearInterval(this.timerInterval);
+                    this.timerInterval = null;
+                }
+            }
+        }
+
+        // Initialize video recorders after exam starts
+        let videoRecorders = {};
+        function initializeVideoRecorders() {
+            const videoQuestions = document.querySelectorAll('[id^="liveVideo_"]');
+            console.log('Found video questions:', videoQuestions.length);
+            
+            videoQuestions.forEach(video => {
+                const questionId = video.id.replace('liveVideo_', '');
+                console.log('Initializing video recorder for question:', questionId);
+                try {
+                    videoRecorders[questionId] = new VideoRecorder(questionId, examId, 2);
+                } catch (error) {
+                    console.error('Error initializing video recorder:', error);
+                }
+            });
+        }
+    </script>
+</head>
+<body>
+    <!-- Teacher Notification Popup -->
+    <div id="teacherNotification" class="teacher-notification">
+        <div class="icon">
+            <svg width="20" height="20" fill="white" viewBox="0 0 16 16">
+                <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2zM8 1.918l-.797.161A4.002 4.002 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4.002 4.002 0 0 0-3.203-3.92L8 1.917zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5.002 5.002 0 0 1 13 6c0 .88.32 4.2 1.22 6z"/>
+            </svg>
+        </div>
+        <div class="content">
+            <div class="title" id="notificationTitle">Teacher Monitoring</div>
+            <div class="message" id="notificationMessage">Exam is being proctored</div>
+        </div>
+    </div>
+    
+    <!-- Tab Switch Counter -->
+    <div id="tabSwitchCounter" style="position: fixed; top: 20px; left: 20px; background: linear-gradient(135deg, rgba(0, 255, 157, 0.2), rgba(0, 168, 255, 0.2)); color: white; padding: 12px 18px; border-radius: 12px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4); z-index: 9999; display: flex; align-items: center; gap: 10px; border: 2px solid rgba(0, 255, 157, 0.4); backdrop-filter: blur(10px);">
+        <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8 4a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 4zm.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/>
+        </svg>
+        <div>
+            <div style="font-size: 11px; opacity: 0.8;">Tab Switches</div>
+            <div style="font-size: 18px; font-weight: 700;" id="tabSwitchDisplay">0 / 3</div>
+        </div>
+    </div>
+
+    <!-- Animated Background Overlay -->
+    <div class="animated-bg-overlay"></div>
+    
+    <!-- Start Exam Overlay -->
+    <div id="start-overlay" class="start-overlay">
+        <div class="start-box">
+            <h2>
+                <svg width="40" height="40" fill="currentColor" viewBox="0 0 16 16" style="vertical-align: middle; margin-right: 10px; opacity: 0.9;">
+                    <path d="M5.5 7a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1h-5zM5 9.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm0 2a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5z"/>
+                    <path d="M9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.5L9.5 0zm0 1v2A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5z"/>
+                </svg>
+                Ready to Begin Your Exam?
+            </h2>
+            <p>Before starting, please review the following requirements:</p>
+            <ul>
+                <li>
+                    <svg viewBox="0 0 16 16">
+                        <path d="M0 5a2 2 0 0 1 2-2h7.5a2 2 0 0 1 1.983 1.738l3.11-1.382A1 1 0 0 1 16 4.269v7.462a1 1 0 0 1-1.406.913l-3.111-1.382A2 2 0 0 1 9.5 13H2a2 2 0 0 1-2-2V5z"/>
+                    </svg>
+                    Camera monitoring will be active throughout the exam
+                </li>
+                <li>
+                    <svg viewBox="0 0 16 16">
+                        <path d="M1.5 1a.5.5 0 0 0-.5.5v13a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-13a.5.5 0 0 0-.5-.5h-13zM0 1.5A1.5 1.5 0 0 1 1.5 0h13A1.5 1.5 0 0 1 16 1.5v13a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 14.5v-13z"/>
+                        <path d="M4 7h1v1H4V7z"/>
+                        <path d="M11 4.5v7a.5.5 0 0 1-.5.5h-7a.5.5 0 0 1-.5-.5v-7a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 .5.5z"/>
+                    </svg>
+                    The exam operates in fullscreen mode only
+                </li>
+                <li>
+                    <svg viewBox="0 0 16 16">
+                        <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                    </svg>
+                    Exiting fullscreen will automatically submit your exam
+                </li>
+                <li>
+                    <svg viewBox="0 0 16 16">
+                        <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z"/>
+                        <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z"/>
+                        <line x1="1" y1="1" x2="15" y2="15" stroke="currentColor" stroke-width="1.5"/>
+                    </svg>
+                    Tab switching will be logged as suspicious behavior
+                </li>
+                <li>
+                    <svg viewBox="0 0 16 16">
+                        <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 0 0-1.06 1.06l2.094 2.093 3.473 4.425a.267.267 0 0 1-.02-.022z"/>
+                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+                    </svg>
+                    Ensure you're in a quiet, well-lit environment
+                </li>
+            </ul>
+            <button id="startExamBtn" class="start-btn">
+                <svg width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="m11.596 8.697-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.692-1.01 1.233-.696l6.363 3.692a.802.802 0 0 1 0 1.393z"/>
+                </svg>
+                Launch Exam in Fullscreen
+            </button>
+        </div>
+    </div>
+
+    <!-- AI Proctoring Webcam -->
+    <div class="proctor-container">
+        <video id="webcam" autoplay playsinline></video>
+        <div class="proctor-status">
+            <span class="status-dot"></span>
+            Initializing Proctoring...
+        </div>
+    </div>
+
+    <!-- Alert Box for Proctoring Warnings -->
+    <div id="alert-box" class="alert-box"></div>
+
+    <div class="container">
+        <div class="fullscreen-warning">
+            <svg width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+            </svg>
+            Fullscreen Mode Active - Exiting will auto-submit your answers!
+        </div>
+        
+        <div class="exam-header">
+            <h1 class="exam-title">{{ exam[1] }}</h1>
+            <div class="exam-meta">
+                <div class="meta-item">
+                    <svg class="meta-icon" viewBox="0 0 16 16">
+                        <path d="M12.166 8.94c-.524 1.062-1.234 2.12-1.96 3.07A31.493 31.493 0 0 1 8 14.58a31.481 31.481 0 0 1-2.206-2.57c-.726-.95-1.436-2.008-1.96-3.07C3.304 7.867 3 6.862 3 6a5 5 0 0 1 10 0c0 .862-.305 1.867-.834 2.94zM8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10z"/>
+                        <path d="M8 8a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm0 1a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+                    </svg>
+                    <span><strong>Subject:</strong> {{ exam[2] }}</span>
+                </div>
+                <div class="meta-item">
+                    <svg class="meta-icon" viewBox="0 0 16 16">
+                        <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.101l-5.223 2.815A.5.5 0 0 1 2 15.5V2zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1H4z"/>
+                    </svg>
+                    <span><strong>Total Questions:</strong> {{ questions|length }}</span>
+                </div>
+                {% if exam|length > 3 and exam[3] %}
+                <div class="meta-item" id="timer-display" style="background: linear-gradient(135deg, rgba(255, 68, 68, 0.2), rgba(255, 107, 53, 0.2)); border: 2px solid rgba(255, 68, 68, 0.5); padding: 10px 18px; border-radius: 12px; font-weight: 700; font-size: 18px; animation: timerPulse 2s infinite;">
+                    <svg class="meta-icon" viewBox="0 0 16 16" style="color: #ff6b35;">
+                        <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"/>
+                        <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"/>
+                    </svg>
+                    <span id="timer-text" style="color: #ff6b35;"><strong>Time Left:</strong> <span id="time-remaining">{{ exam[3] }}:00</span></span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <form id="exam-form" action="{{ url_for('submit_exam', exam_id=exam[0]) }}" method="post">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+            {% for question in questions %}
+            <div class="question-box" style="--question-index: {{ loop.index }};" id="question_{{ question[0] }}">
+                <h3>
+                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16" style="vertical-align: middle; margin-right: 8px; opacity: 0.7;">
+                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                        <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286zm1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z"/>
+                    </svg>
+                    Question {{ loop.index }}: {{ question[2] }}
+                </h3>
+                
+                <!-- Display question media if exists (image or video) -->
+                {% if question[10] %}
+                    {% if question[3] == 'video_mcq' and (question[10].lower().endswith('.mp4') or question[10].lower().endswith('.webm') or question[10].lower().endswith('.avi') or question[10].lower().endswith('.mov')) %}
+                    <!-- Display video for video_mcq -->
+                    <div style="text-align: center; margin: 20px 0;">
+                        <video controls 
+                               style="max-width: 100%; max-height: 500px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0, 128, 55, 0.3);">
+                            <source src="{{ url_for('static', filename=question[10].replace('static\\', '').replace('static/', '').replace('\\', '/')) }}" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                        <p style="color: rgba(255, 255, 255, 0.7); margin-top: 10px; font-size: 14px;">
+                            <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style="vertical-align: middle; margin-right: 5px;">
+                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                                <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+                            </svg>
+                            Watch the video carefully before answering the question
+                        </p>
+                    </div>
+                    {% else %}
+                    <!-- Display image for image_mcq -->
+                    <div style="text-align: center; margin: 20px 0;">
+                        <img src="{{ url_for('static', filename=question[10].replace('static\\', '').replace('static/', '').replace('\\', '/')) }}" 
+                             alt="Question Image" 
+                             style="max-width: 100%; max-height: 400px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0, 128, 55, 0.3);">
+                    </div>
+                    {% endif %}
+                {% endif %}
+                
+                {% if question[3] == 'video_response' %}
+                <!-- VIDEO RECORDING QUESTION -->
+                <div class="video-recording-container">
+                    <div class="video-instructions">
+                        <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16" style="vertical-align: middle; margin-right: 8px;">
+                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                            <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+                        </svg>
+                        <strong>Video Response Question:</strong> Record your answer by clicking "Start Recording". Maximum <strong>2 attempts</strong> allowed.
+                    </div>
+                    
+                    <div class="attempt-info" id="attemptInfo_{{ question[0] }}">
+                        Current Attempt: <strong><span id="currentAttempt_{{ question[0] }}">1</span> of 2</strong>
+                    </div>
+                    
+                    <div class="video-preview-area">
+                        <div class="loading-camera" id="loadingCamera_{{ question[0] }}">
+                            <svg width="56" height="56" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M8 3.5a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0V4a.5.5 0 0 1 .5-.5zM8 12a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-1 0v-1a.5.5 0 0 1 .5-.5zm4.5-4a.5.5 0 0 1 .5.5h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1-.5-.5zm-9 0a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1 0-1h1a.5.5 0 0 1 .5.5z"/>
+                            </svg>
+                            <br><br>Initializing Camera...
+                        </div>
+                        <video id="liveVideo_{{ question[0] }}" autoplay playsinline muted style="display:none;"></video>
+                        <video id="playbackVideo_{{ question[0] }}" controls style="display:none;"></video>
+                        
+                        <div id="recordingIndicator_{{ question[0] }}" class="recording-indicator">
+                            <span class="pulse"></span>
+                            REC
+                        </div>
+                        
+                        <div id="timerDisplay_{{ question[0] }}" class="timer-display" style="display:none;">
+                            00:00
+                        </div>
+                    </div>
+                    
+                    <div class="recording-controls">
+                        <button type="button" id="btnStartRecording_{{ question[0] }}" class="btn-start-recording">
+                            <svg width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                                <circle cx="8" cy="8" r="6"/>
+                            </svg>
+                            Start Recording
+                        </button>
+                        
+                        <button type="button" id="btnStopRecording_{{ question[0] }}" class="btn-stop-recording" style="display:none;">
+                            <svg width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                                <rect width="12" height="12" x="2" y="2"/>
+                            </svg>
+                            Stop Recording
+                        </button>
+                        
+                        <button type="button" id="btnPlayPreview_{{ question[0] }}" class="btn-play-preview" style="display:none;">
+                            <svg width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="m11.596 8.697-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.692-1.01 1.233-.696l6.363 3.692a.802.802 0 0 1 0 1.393z"/>
+                            </svg>
+                            Play Preview
+                        </button>
+                        
+                        <button type="button" id="btnRetry_{{ question[0] }}" class="btn-retry" style="display:none;">
+                            <svg width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
+                                <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
+                            </svg>
+                            Retry Recording
+                        </button>
+                        
+                        <!-- Video will be auto-uploaded when exam is submitted -->
+                    </div>
+                    
+                    <div id="uploadProgress_{{ question[0] }}" class="upload-progress">
+                        <div class="progress-bar">
+                            <div id="progressFill_{{ question[0] }}" class="progress-fill" style="width: 0%;">
+                                0%
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <input type="hidden" id="videoSubmitted_{{ question[0] }}" name="video_submitted_{{ question[0] }}" value="0">
+                </div>
+                
+                {% elif question[3] == 'descriptive' %}
+                <!-- DESCRIPTIVE ANSWER QUESTION -->
+                <div style="margin-top: 20px;">
+                    <label style="display: block; margin-bottom: 10px; color: #b8e6d5; font-weight: 600;">
+                        <svg width="18" height="18" fill="currentColor" viewBox="0 0 16 16" style="vertical-align: middle; margin-right: 8px;">
+                            <path d="M5 0h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2 2 2 0 0 1-2 2H3a2 2 0 0 1-2-2h1a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1H1a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v9a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1H3a2 2 0 0 1 2-2z"/>
+                            <path d="M1 6v-.5a.5.5 0 0 1 1 0V6h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1H1zm0 3v-.5a.5.5 0 0 1 1 0V9h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1H1zm0 2.5v.5H.5a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1H2v-.5a.5.5 0 0 0-1 0z"/>
+                        </svg>
+                        Write your answer below:
+                    </label>
+                    <textarea name="answer_{{ question[0] }}" 
+                              rows="8" 
+                              required
+                              placeholder="Type your detailed answer here..."
+                              style="width: 100%; padding: 14px 18px; border-radius: 14px; border: 2px solid rgba(0, 128, 55, 0.3); 
+                                     font-size: 15px; font-family: 'Century Gothic', 'Futura', sans-serif; background: linear-gradient(135deg, rgba(26, 32, 53, 0.6), rgba(16, 20, 35, 0.8));
+                                     color: #e0f2e9; resize: vertical; line-height: 1.6;"></textarea>
+                </div>
+                
+                {% elif question[3] == 'true_false' %}
+                <!-- TRUE OR FALSE QUESTION -->
+                <div class="option">
+                    <label>
+                        <input type="radio" name="answer_{{ question[0] }}" value="True" required>
+                        <strong>True</strong>
+                    </label>
+                </div>
+                
+                <div class="option">
+                    <label>
+                        <input type="radio" name="answer_{{ question[0] }}" value="False">
+                        <strong>False</strong>
+                    </label>
+                </div>
+                
+                {% else %}
+                <!-- MULTIPLE CHOICE QUESTION (mcq or image_mcq) -->
+                <div class="option">
+                    <label>
+                        <input type="radio" name="answer_{{ question[0] }}" value="A" required>
+                        <strong>A)</strong> <span>{{ question[4] }}</span>
+                    </label>
+                </div>
+                
+                <div class="option">
+                    <label>
+                        <input type="radio" name="answer_{{ question[0] }}" value="B">
+                        <strong>B)</strong> <span>{{ question[5] }}</span>
+                    </label>
+                </div>
+                
+                {% if question[6] %}
+                <div class="option">
+                    <label>
+                        <input type="radio" name="answer_{{ question[0] }}" value="C">
+                        <strong>C)</strong> <span>{{ question[6] }}</span>
+                    </label>
+                </div>
+                {% endif %}
+                
+                {% if question[7] %}
+                <div class="option">
+                    <label>
+                        <input type="radio" name="answer_{{ question[0] }}" value="D">
+                        <strong>D)</strong> <span>{{ question[7] }}</span>
+                    </label>
+                </div>
+                {% endif %}
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            <div style="text-align: center; margin: 40px 0;">
+                <button type="button" id="submitExamBtn" class="button">
+                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/>
+                    </svg>
+                    <span id="submitBtnText">Submit Exam</span>
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <script nonce="{{ csp_nonce() }}">
+        // Shared async function to handle exam submission with video upload
+        async function handleExamSubmission() {
+            const submitBtn = document.getElementById('submitExamBtn');
+            const submitBtnText = document.getElementById('submitBtnText');
+            const originalText = submitBtnText.textContent;
+            
+            console.log('handleExamSubmission called');
+            
+            // Disable submit button
+            submitBtn.disabled = true;
+            submitBtnText.textContent = 'Checking for videos...';
+            
+            try {
+                // Find all video recorders that have recorded videos
+                let videosUploaded = 0;
+                
+                // Check if videoRecorders exists
+                if (typeof videoRecorders !== 'undefined' && Object.keys(videoRecorders).length > 0) {
+                    console.log('Found video recorders:', Object.keys(videoRecorders));
+                    
+                    for (const [questionId, recorder] of Object.entries(videoRecorders)) {
+                        console.log(`Checking question ${questionId}:`, {
+                            hasBlob: !!recorder.recordedBlob,
+                            blobSize: recorder.recordedBlob ? recorder.recordedBlob.size : 0
+                        });
+                        
+                        // Check if video was recorded but not yet submitted
+                        if (recorder.recordedBlob && recorder.recordedBlob.size > 0) {
+                            const videoSubmittedInput = document.getElementById(`videoSubmitted_${questionId}`);
+                            
+                            // Upload the video
+                            submitBtnText.textContent = `Uploading video for question ${questionId}...`;
+                            console.log(`Uploading video for question ${questionId}`);
+                            
+                            const formData = new FormData();
+                            formData.append('video', recorder.recordedBlob, `recording_q${questionId}.webm`);
+                            formData.append('exam_id', {{ exam[0] }});
+                            formData.append('question_id', questionId);
+                            formData.append('attempt_number', recorder.attemptNumber || 1);
+                            formData.append('duration', recorder.recordingDuration || 0);
+                            formData.append('_csrf_token', '{{ csrf_token() }}');
+                            
+                            try {
+                                const response = await fetch('/upload_video_response', {
+                                    method: 'POST',
+                                    body: formData
+                                });
+                                
+                                const result = await response.json();
+                                
+                                if (result.success) {
+                                    videoSubmittedInput.value = '1';
+                                    videosUploaded++;
+                                    console.log(`Video for question ${questionId} uploaded successfully`);
+                                } else {
+                                    console.error(`Failed to upload video for question ${questionId}:`, result.message);
+                                    alert(`Warning: Failed to upload video for question ${questionId}. Your other answers will be submitted.`);
+                                }
+                            } catch (error) {
+                                console.error(`Error uploading video for question ${questionId}:`, error);
+                                alert(`Warning: Error uploading video for question ${questionId}. Your other answers will be submitted.`);
+                            }
+                        } else {
+                            // No video recorded, mark as not submitted
+                            const videoSubmittedInput = document.getElementById(`videoSubmitted_${questionId}`);
+                            if (videoSubmittedInput) {
+                                videoSubmittedInput.value = '0';
+                                console.log(`No video recorded for question ${questionId}`);
+                            }
+                        }
+                    }
+                    
+                    if (videosUploaded > 0) {
+                        console.log(`Successfully uploaded ${videosUploaded} video(s)`);
+                    }
+                } else {
+                    console.log('No video recorders found or no video questions in this exam');
+                }
+                
+                // Now submit the form
+                submitBtnText.textContent = 'Submitting exam...';
+                console.log('Submitting form...');
+                
+                // Stop teacher notifications before submitting
+                stopNotifications();
+                
+                document.getElementById('exam-form').submit();
+                
+            } catch (error) {
+                console.error('Error during submission:', error);
+                alert('An error occurred while submitting. Please try again.');
+                submitBtn.disabled = false;
+                submitBtnText.textContent = originalText;
+            }
+        }
+        
+        // Handle exam submission with auto video upload
+        document.addEventListener('DOMContentLoaded', function() {
+            // Start exam button
+            const startBtn = document.getElementById('startExamBtn');
+            if (startBtn) {
+                startBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    startExam();
+                });
+            }
+            
+            // Submit exam button
+            const submitBtn = document.getElementById('submitExamBtn');
+            if (submitBtn) {
+                submitBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    handleExamSubmission();
+                });
+            }
+        });
+    </script>
+</body>
+</html>
